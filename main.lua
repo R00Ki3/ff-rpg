@@ -37,7 +37,6 @@ end
 
 function player_ondamage(playerID, damageinfo)
     local player = playerList[ID(playerID)]
-    ChatToAll(" "..player.GetClassName()) --Debug test
     --player.LevelUp()
     player.GainXp(60)
     skillsModule.Resistance(player, damageinfo)

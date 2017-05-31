@@ -17,7 +17,6 @@ function LevelUpDelay(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
 		--Because everyone loves points, right?
-		ChatToPlayer(player,"testtt")
 	player:AddFortPoints(100 * level, "Leveling up!")
 
 	DestroyMenu( "LEVEL_UP" )
