@@ -1,3 +1,4 @@
+
 local xp_module = {}
 local LevelUpDelay
 
@@ -9,15 +10,13 @@ function xp_module.LevelUp(playerID)
 	BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
 	ChatToPlayer(player,"^5You are now level ^4"..level)
 
-	--AddSchedule("level_up", 2, LevelUpDelay, playerID)
-	LevelUpDelay(playerID)
+	AddSchedule("level_up", 2, LevelUpDelay, playerID)
 end
 
 function LevelUpDelay(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
 		--Because everyone loves points, right?
-		ChatToPlayer(player,"testtt")
 	player:AddFortPoints(100 * level, "Leveling up!")
 
 	DestroyMenu( "LEVEL_UP" )
