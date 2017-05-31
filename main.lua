@@ -4,6 +4,8 @@ local skillsModule = require "globalscripts.rpg_skills_module" -- soon to remove
 local ID = playerModule.getPlayer
 local playerList = {}
 
+PrecacheSound("Misc.Unagi")
+
 function player_connected(playerID)
     playerList[ID(playerID)] = playerModule.NewPlayer(playerID)
 end
@@ -11,12 +13,10 @@ end
 function player_switchteam(playerID, old, new )
     hudModule.HideAll(playerID)
 
-
---[[ From old version
 	CreateMenu( "CLEAR", "Clear Menu", 1 )
 	ShowMenuToPlayer(player, "CLEAR")
 	DestroyMenu( "CLEAR" )
---]]
+
     return true -- true allows switch, false denies player
 end
 
@@ -33,17 +33,18 @@ end
 function player_spawn(playerID)
     local player = playerList[ID(playerID)]
     player.UpdateSpawn()
+    skillsModule.Speed(player)
 end
 
 function player_ondamage(playerID, damageinfo)
     if not damageinfo then return end
     local player = damageinfo:GetAttacker()
-    if not player then return end
+    if not IsPlayer(player) then return end
     local attacker = playerList[ID(player)]
-    if not attacker then return end
     local victim = playerList[ID(playerID)]
 
-    if not victim.GetTeamID() == attacker.GetTeamID() then
+
+    if not (victim.GetTeamID() == attacker.GetTeamID()) then
         -- don't allow DETPACKS to gain this bonus
         if damageinfo:GetDamageType() ~= 320 then
             local xp_amount = damageinfo:GetDamage() * 0.30
@@ -63,37 +64,23 @@ function player_killed(playerID, damageinfo)
 	--Hide information bar when someone dies
 	hudModule.HideAll(playerID)
 
-	-- suicides have no damageinfo
-	if not killer then return end
-	if damageinfo ~= nil then
-		local player = CastToPlayer( player_entity )
-		local killer = damageinfo:GetAttacker()
-		local weapon = damageinfo:GetInflictor():GetClassName()
-		local killer = CastToPlayer(killer)
+    if not damageinfo then return end
+    local player = damageinfo:GetAttacker()
+    if not IsPlayer(player) then return end
+    local attacker = playerList[ID(player)]
+    local victim = playerList[ID(playerID)]
 
-		local AttackerSteamID = killer:GetSteamID()
-		local AttackerClass = killer:GetClass()
-
-		if IsPlayer(killer) then
-
-		if not (player:GetTeamId() == killer:GetTeamId()) then
-			-- Pyro Maniac
-			pyro_maniac(player, killer, 7, player_table[AttackerSteamID][AttackerClass].skill_ult_1, damageinfo)
-
-			-- Soldier Rocket Science
-			rocket_science(player, killer, 3, player_table[AttackerSteamID][AttackerClass].skill_ult_2, damageinfo)
-
-			local killersTeam = killer:GetTeam()
-			--local victim = GetPlayer(player_id)
-			if player_table[AttackerSteamID].multi_kill >= 3 then
-				gain_xp(killer, XP_PER_KILL + XP_PER_MULTI_KILL * 3)
-			else
-				gain_xp(killer, XP_PER_KILL + XP_PER_MULTI_KILL * player_table[AttackerSteamID].multi_kill)
-			end
-				player_table[AttackerSteamID].multi_kill = player_table[AttackerSteamID].multi_kill + 1
-
-			end
+    if not (victim.GetTeamID() == attacker.GetTeamID()) then
+        local kill_count = attacker.GetKillCount()
+		--local victim = GetPlayer(player_id)
+		if kill_count >= 3 then
+            local xp_amount = 20 + 10 * 3
+			attacker.GainXp(xp_amount)
+		else
+            local xp_amount = 20 + 10 * kill_count
+			attacker.GainXp(xp_amount)
 		end
+        attacker.AddToKillCount()
 	end
 end
 
@@ -107,11 +94,30 @@ function player_onmenuselect(playerID, menu_name, selection)
             player.LevelUpResist()
 		elseif selection == 7 then
             player.LevelUpSpeed()
+            skillsModule.Speed(player) --Update speed on skill selection
 		elseif selection == 8 then
             player.LevelUpRegen()
 		elseif selection == 9 then
             player.LevelUpRoleSkill()
 		end
 	end
+end
 
+function player_onchat(playerID, chatstring)
+	--[[if type(function_table.player_onchat) == "function" then
+		function_table.player_onchat(player, chatstring)
+	end
+    ]]
+
+	local player = playerList[ID(playerID)]
+
+	-- string.gsub call removes all control characters (newlines, return carriages, etc)
+	-- string.sub call removes the playername: part of the string, leaving just the message
+	local message = string.sub( string.gsub( chatstring, "%c", "" ), string.len(player.GetPlayer():GetName())+3 )
+	if message == "!lvlup" then
+		player.LevelUp()
+		return false
+	end
+
+	return true
 end
