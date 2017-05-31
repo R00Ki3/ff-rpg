@@ -15,6 +15,7 @@ function player_module.NewPlayer(playerID)
     local level = 1
     local xp = 0
     local xp_to_next = 100
+    local kill_count = 0
     local steam_id = player:GetSteamID()
     local class_id = player:GetClass()
     local team_id = player:GetTeamId()
@@ -27,10 +28,11 @@ function player_module.NewPlayer(playerID)
     function self.SetLevel(number) level = number end
     function self.LevelUp()
         level = level + 1
+        local xp_left =  xp % xp_to_next
         xp_to_next = xp_to_next * 1.15 + 100
+        xp = xp_left
         hudModule.UpdateAll(self)
         xpModule.LevelUp(self)
-
     end
 
     function self.AllowUlt() return allow_ult end
@@ -111,11 +113,17 @@ function player_module.NewPlayer(playerID)
         end
     end
 
+    function self.GetKillCount() return kill_count end
+    function self.SetKillCount(number) kill_count = number end
+    function self.AddToKillCount() kill_count = kill_count + 1 end
+
     function self.UpdateSpawn()
+        self.SetKillCount(0)
         team_id = player:GetTeamId()
         class_id = player:GetClass()
         class_name = utilModule.GetClassName(class_id)
         hudModule.UpdateAll(self)
+
     end
 
     return self
