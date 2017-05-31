@@ -17,6 +17,7 @@ function player_module.NewPlayer(playerID)
     local xp_to_next = 100
     local steam_id = player:GetSteamID()
     local class_id = player:GetClass()
+    local team_id = player:GetTeamId()
     local allow_ult = false
     local auto_level = false
     local class_name = "R00Kie"
@@ -41,7 +42,6 @@ function player_module.NewPlayer(playerID)
         hudModule.UpdateXpBar(self)
  		--Check XP needed for next level
  		if self.GetXp() >= self.GetXpToNext() then self.LevelUp() end
-
      end
 
     function self.GetAutoLevel() return auto_level end
@@ -56,22 +56,63 @@ function player_module.NewPlayer(playerID)
     function self.GetClassID() return class_id end
     function self.SetClassID(number) class_id = number end
 
+    function self.GetTeamID() return team_id end
+    function self.SetTeamID(number) team_id = number end
+
     function self.GetClassName() return class_name end
     function self.SetClassName(string) class_name = string end
 
     function self.GetClassInfo() end
 
+    --Basic Skills
     function self.GetRegenLevel() return regen_level end
+    function self.LevelUpRegen()
+        regen_level = regen_level + 1
+        ChatToPlayer(player, "^5You Selected^2 5% Health and Armor Regeneration")
+        hudModule.UpdateRegen(self)
+    end
+
     function self.GetResistLevel() return resistance_level end
     function self.LevelUpResist()
          resistance_level = resistance_level + 1
          ChatToPlayer(player, "^5You Selected^8 5% Increased Resistance")
-     end
+         hudModule.UpdateResist(self)
+    end
+
     function self.GetSpeedLevel() return speed_level end
+    function self.LevelUpSpeed()
+        speed_level = speed_level + 1
+        ChatToPlayer(player, "^5You Selected^4 5% Increased Speed")
+        hudModule.UpdateSpeed(self)
+    end
+
+    -- Offensive Basic Skill
     function self.GetThrowLevel() return throw_level end
+    function self.LevelUpThrow()
+        throw_level = throw_level + 1
+        ChatToPlayer(player, "^5You Selected^9 15% Increased Flag Throwing")
+        hudModule.UpdateThrow(self)
+    end
+
+    -- Defensive Basic Skill
     function self.GetDamageLevel() return damage_level end
+    function self.LevelUpDamage()
+        damage_level = damage_level + 1
+        ChatToPlayer(player, "^5You Selected^2 5% Increased Damage")
+        hudModule.UpdateDamage(self)
+    end
+
+    function self.LevelUpRoleSkill()
+        -- Class is offensive scout(1), medic(5) or spy(8)
+        if class_id == 1 or class_id == 5 or class_id == 8 then
+            self.LevelUpThrow()
+        else -- Class is defensive
+            self.LevelUpDamage()
+        end
+    end
 
     function self.UpdateSpawn()
+        team_id = player:GetTeamId()
         class_id = player:GetClass()
         class_name = utilModule.GetClassName(class_id)
         hudModule.UpdateAll(self)

@@ -3,6 +3,7 @@ local hud_module = {}
 function hud_module.UpdateAll(player)
     local playerID = player.GetPlayer()
 	local class = player.GetClassName()
+    local class_id = player.GetClassID()
     local current_level = player.GetXp()
     local next_level = player.GetXpToNext()
 
@@ -25,7 +26,7 @@ function hud_module.UpdateAll(player)
 		AddHudText(playerID, "Progress_resist","+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
 		AddHudText(playerID, "Progress_speed","+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
 
-		if class == 1 or class == 5 or class == 8 then
+		if class_id == 1 or class_id == 5 or class_id == 8 then
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(15 * player.GetThrowLevel()).."% Throw Power", 370, 469, 0 )
 		else
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(5 * player.GetDamageLevel()).."% Damage", 370, 469, 0 )
@@ -48,20 +49,49 @@ function hud_module.UpdateAll(player)
         --]]
 	end --  is alive
 end
+function hud_module.UpdateResist(player)
+    local playerID = player.GetPlayer()
+    local amount = player.GetResistLevel() * 5
+    AddHudText(playerID, "Progress_resist","+".. amount .."% Resistance", 293, 461, 0 )
+end
+
+function hud_module.UpdateSpeed(player)
+    local playerID = player.GetPlayer()
+    local amount = player.GetSpeedLevel() * 5
+    AddHudText(playerID, "Progress_speed","+".. amount .."% Speed", 370, 461, 0 )
+end
+
+function hud_module.UpdateRegen(player)
+    local playerID = player.GetPlayer()
+    local amount = player.GetRegenLevel() * 5
+    AddHudText(playerID, "Progress_regen","+".. amount .."% Regeneration", 293, 469, 0 )
+end
+
+function hud_module.UpdateThrow(player)
+    local playerID = player.GetPlayer()
+    local amount = player.GetThrowLevel() * 15
+    AddHudText(playerID, "Progress_o_or_d","+".. amount .."% Throw Power", 370, 469, 0 )
+end
+
+function hud_module.UpdateDamage(player)
+    local playerID = player.GetPlayer()
+    local amount = player.GetDamageLevel() * 5
+    AddHudText(playerID, "Progress_o_or_d","+".. amount .."% Damage", 370, 469, 0 )
+end
 
 --Update only xp bar and text
 function hud_module.UpdateXpBar(player)
-        local playerID = player.GetPlayer()
-        local current_level = player.GetXp()
-        local next_level = player.GetXpToNext()
-        local level_xp = tostring(math.floor(current_level))
+    local playerID = player.GetPlayer()
+    local current_level = player.GetXp()
+    local next_level = player.GetXpToNext()
+    local level_xp = tostring(math.floor(current_level))
 
-        local max_width = 124
-		local bar_width = current_level	* max_width / next_level
+    local max_width = 124
+	local bar_width = current_level	* max_width / next_level
 
-        hud_module.HideXpBar(playerID)
-        AddHudIcon(playerID, "hud_statusbar_purple.vtf", "Progress_bar", 166, 462, bar_width, 16, 0 )
-        AddHudText(playerID, "Progress_text", level_xp .."/"..next_level, 166, 462, 0 )
+    --hud_module.HideXpBar(playerID)
+    AddHudIcon(playerID, "hud_statusbar_purple.vtf", "Progress_bar", 166, 462, bar_width, 16, 0 )
+    AddHudText(playerID, "Progress_text", level_xp .."/"..next_level, 166, 462, 0 )
 end
 
 --remove only xp bar and text

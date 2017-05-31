@@ -36,10 +36,24 @@ function player_spawn(playerID)
 end
 
 function player_ondamage(playerID, damageinfo)
-    local player = playerList[ID(playerID)]
-    --player.LevelUp()
-    player.GainXp(60)
-    skillsModule.Resistance(player, damageinfo)
+    if not damageinfo then return end
+    local player = damageinfo:GetAttacker()
+    if not player then return end
+    local attacker = playerList[ID(player)]
+    if not attacker then return end
+    local victim = playerList[ID(playerID)]
+
+    if not victim.GetTeamID() == attacker.GetTeamID() then
+        -- don't allow DETPACKS to gain this bonus
+        if damageinfo:GetDamageType() ~= 320 then
+            local xp_amount = damageinfo:GetDamage() * 0.30
+            attacker.GainXp(xp_amount)
+        end
+    end
+
+    --Basic Skill Calls
+    skillsModule.Resistance(victim, damageinfo)
+    skillsModule.IncreaseDamage(attacker, damageinfo)
 end
 
 function player_killed(playerID, damageinfo)
@@ -87,29 +101,16 @@ end
 function player_onmenuselect(playerID, menu_name, selection)
     local player = playerList[ID(playerID)]
 
-	-- For basic skills
+	-- Select Basic Skill
 	if menu_name == "LEVEL_UP" then
 		if selection == 6 then
-	           player.LevelUpResist()
+            player.LevelUpResist()
 		elseif selection == 7 then
-			ChatToPlayer(player, "^5You Selected ^4"..SKILL_NAME.SKILL_2)
-			player_table[SteamID][PlayerClass].skill_2 = player_table[SteamID][PlayerClass].skill_2 + 1
-			speed_skill(player)
-			LogLuaEvent(PlayerID, 0, "LEVEL_UP_MENU", SKILL_NAME.SKILL_2, "Rank: "..tostring(player_table[SteamID][PlayerClass].skill_2) )
+            player.LevelUpSpeed()
 		elseif selection == 8 then
-			ChatToPlayer(player, "^5You Selected ^2"..SKILL_NAME.SKILL_3)
-			player_table[SteamID][PlayerClass].skill_3 = player_table[SteamID][PlayerClass].skill_3 + 1
-			LogLuaEvent(PlayerID, 0, "LEVEL_UP_MENU", SKILL_NAME.SKILL_3, "Rank: "..tostring(player_table[SteamID][PlayerClass].skill_3) )
+            player.LevelUpRegen()
 		elseif selection == 9 then
-			if PlayerClass == 1 or PlayerClass == 5 or PlayerClass == 8 then
-				ChatToPlayer(player, "^5You Selected ^9"..SKILL_NAME.SKILL_O)
-				player_table[SteamID][PlayerClass].skill_O = player_table[SteamID][PlayerClass].skill_O + 1
-				LogLuaEvent(PlayerID, 0, "LEVEL_UP_MENU", SKILL_NAME.SKILL_O, "Rank: "..tostring(player_table[SteamID][PlayerClass].skill_O) )
-			else
-				ChatToPlayer(player, "^5You Selected ^2"..SKILL_NAME.SKILL_D)
-				player_table[SteamID][PlayerClass].skill_D = player_table[SteamID][PlayerClass].skill_D + 1
-				LogLuaEvent(PlayerID, 0, "LEVEL_UP_MENU", SKILL_NAME.SKILL_D,"Rank: "..tostring(player_table[SteamID][PlayerClass].skill_D) )
-			end
+            player.LevelUpRoleSkill()
 		end
 	end
 
