@@ -3,8 +3,34 @@ local hudModule = require "globalscripts.rpg_hud_module"
 local skillsModule = require "globalscripts.rpg_skills_module" -- soon to remove
 local ID = playerModule.getPlayer
 local playerList = {}
+--local playerArray = {}
+local functionList = {
+	startup = startup,
+	player_spawn = player_spawn,
+	player_onchat = player_onchat,
+	player_ondamage = player_ondamage,
+	player_killed = player_killed
+ }
+functionList.baseflag = {
+	touch = baseflag.touch ,
+	dropitemcmd = baseflag.dropitemcmd
+}
 
 PrecacheSound("Misc.Unagi")
+
+function player_tick()
+    for _, player in pairs(playerList) do
+        skillsModule.Regeneration(player)
+    end
+end
+
+function startup()
+	if type(functionList.startup) == "function" then
+		functionList.startup()
+	end
+
+	AddScheduleRepeating("health_regen", 7, player_tick)
+end
 
 function player_connected(playerID)
     playerList[ID(playerID)] = playerModule.NewPlayer(playerID)
@@ -84,6 +110,33 @@ function player_killed(playerID, damageinfo)
 	end
 end
 
+function baseflag:touch(playerID)
+	if type(functionList.baseflag.touch) == "function" then
+		functionList.baseflag.touch (self, playerID)
+	end
+
+	local player = playerList[ID(playerID)]
+	if not player.IsFlagTouched() then
+		player.GainXp(20)
+		player.SetFlagTouched(true)
+	end
+end
+
+function baseflag:dropitemcmd(playerID)
+	if type(functionList.baseflag.dropitemcmd) == "function" then
+		functionList.baseflag.dropitemcmd (self, playerID)
+	end
+
+	local player = playerList[ID(playerID)]
+	skillsModule.FlagThrow(player)
+end
+
+function basecap:ontouch(playerID)
+	local player = playerList[ID(playerID)]
+	player.GainXp(80)
+	player.SetFlagTouched(false) -- resets flag touch 
+end
+
 --So, you made a selection.. Lets save that information
 function player_onmenuselect(playerID, menu_name, selection)
     local player = playerList[ID(playerID)]
@@ -118,6 +171,9 @@ function player_onchat(playerID, chatstring)
 		player.LevelUp()
 		return false
 	end
-
+    if message == "!xp" then
+        player.GainXp(50)
+        return false
+    end
 	return true
 end

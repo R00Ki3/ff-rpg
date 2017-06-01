@@ -18,4 +18,3 @@ function util_module.GetClassName(class_id)
 end
 
 return util_module
-

@@ -27,7 +27,7 @@ function hud_module.UpdateAll(player)
 		AddHudText(playerID, "Progress_speed","+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
 
 		if class_id == 1 or class_id == 5 or class_id == 8 then
-			AddHudText(playerID, "Progress_o_or_d","+"..tostring(15 * player.GetThrowLevel()).."% Throw Power", 370, 469, 0 )
+			AddHudText(playerID, "Progress_o_or_d","+"..tostring(15 * player.GetFlagThrowLevel()).."% Throw Power", 370, 469, 0 )
 		else
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(5 * player.GetDamageLevel()).."% Damage", 370, 469, 0 )
 		end
@@ -69,7 +69,7 @@ end
 
 function hud_module.UpdateThrow(player)
     local playerID = player.GetPlayer()
-    local amount = player.GetThrowLevel() * 15
+    local amount = player.GetFlagThrowLevel() * 15
     AddHudText(playerID, "Progress_o_or_d","+".. amount .."% Throw Power", 370, 469, 0 )
 end
 

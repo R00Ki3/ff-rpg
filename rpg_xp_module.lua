@@ -45,7 +45,7 @@ function LevelUpDelay(playerID)
 	if level <= 17 then
 		-- Check to see if player selected auto leveling
 		if not playerID.GetAutoLevel() then
-
+            local class_id = playerID.GetClassID()
 			--Create a menu with some level up choices and label them!
 			CreateMenu( "LEVEL_UP", "Choose a skill", -1 )
 			AddMenuOption( "LEVEL_UP", 6 , "5% Increased Resistance")
@@ -53,7 +53,7 @@ function LevelUpDelay(playerID)
 			AddMenuOption( "LEVEL_UP", 8 , "5% Health and Armor Regeneration")
 
 			-- Add Offensive skills to Offensive classes
-			if PlayerClass == 1 or PlayerClass == 5 or PlayerClass == 8 then
+			if class_id == 1 or class_id == 5 or class_id == 8 then
 				AddMenuOption( "LEVEL_UP", 9 , "15% Increased Flag Throwing")
 			else
 				AddMenuOption( "LEVEL_UP", 9 , "5% Increased Damage")
@@ -84,7 +84,7 @@ function LevelUpDelay(playerID)
 				end
 			end -- auto choice
 		end -- auto level
-		BroadCastSoundToPlayer( player, "Misc.Unagi" )
+		BroadCastSoundToPlayer(player, "Misc.Unagi")
 	end -- uner lvl 17
 end
 
