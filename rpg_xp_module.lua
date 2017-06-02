@@ -1,6 +1,68 @@
-
 local xp_module = {}
 local LevelUpDelay
+
+function xp_module.NewExperienceLine(playerID)
+    local self = {}
+
+    local xp = 0
+    local xp_to_next = 98
+    function self.GetXp() return xp end
+    function self.SetXp(int) xp = int end
+    function self.GainXp(amount)
+        xp = xp + amount
+        --Check XP needed for next level
+        if self.GetXp() >= self.GetXpToNext() then self.LevelUp() end
+    end
+
+    function self.GetXpToNext() return xp_to_next end
+    function self.SetXpToNext(int)  xp_to_next = int end
+
+    local level = 1
+    function self.GetLevel() return level end
+    function self.SetLevel(int) level = int end
+    function self.LevelUp()
+        level = level + 1
+        xp =  xp % xp_to_next -- Keep leftover xp on lvel
+        local toFloor = math.floor
+        xp_to_next = toFloor(xp_to_next * 1.15)
+        xp_module.LevelUp(playerID)
+    end
+
+    --Basic Skills
+    local regen_level = 0
+    function self.GetRegenLevel() return regen_level end
+    function self.LevelUpRegen()
+        regen_level = regen_level + 1
+    end
+
+    local resistance_level = 0
+    function self.GetResistLevel() return resistance_level end
+    function self.LevelUpResist()
+         resistance_level = resistance_level + 1
+    end
+
+    local speed_level = 0
+    function self.GetSpeedLevel() return speed_level end
+    function self.LevelUpSpeed()
+        speed_level = speed_level + 1
+    end
+
+    -- Offensive Basic Skill
+    local throw_level = 0
+    function self.GetFlagThrowLevel() return throw_level end
+    function self.LevelUpFlagThrow()
+        throw_level = throw_level + 1
+    end
+
+    -- Defensive Basic Skill
+    local damage_level = 0
+    function self.GetDamageLevel() return damage_level end
+    function self.LevelUpDamage()
+        damage_level = damage_level + 1
+    end
+
+    return self
+end
 
 function xp_module.LevelUp(playerID)
     local player = playerID.GetPlayer()
@@ -65,27 +127,21 @@ function LevelUpDelay(playerID)
 			local auto_choice = RandomInt(1, 4)
 
 			if auto_choice == 1 then
-				ChatToPlayer(player, "^5Auto-Selected^8 5% Increased Resistance")
-				player_table[SteamID][PlayerClass].skill_1 = player_table[SteamID][PlayerClass].skill_1 + 1
+				playerID.LevelUpResist()
 			elseif auto_choice == 2 then
-				ChatToPlayer(player, "^5Auto-Selected^4 5% Increased Speed")
-				player_table[SteamID][PlayerClass].skill_2 = player_table[SteamID][PlayerClass].skill_2 + 1
-				speed_skill(player)
+				playerID.LevelUpSpeed()
 			elseif auto_choice == 3 then
-				ChatToPlayer(player, "^5Auto-Selected^2 5% Health and Armor Regeneration")
-				player_table[SteamID][PlayerClass].skill_3 = player_table[SteamID][PlayerClass].skill_3 + 1
+				playerID.LevelUpRegen()
 			elseif auto_choice == 4 then
-				if PlayerClass == 1 or PlayerClass == 5 or PlayerClass == 8 then
-					ChatToPlayer(player, "^5Auto-Selected^9 15% Increased Flag Throwing")
-					player_table[SteamID][PlayerClass].skill_O = player_table[SteamID][PlayerClass].skill_O + 1
+				if class_id == 1 or class_id == 5 or class_id == 8 then
+					playerID.LevelUpFlagThrow()
 				else
-					ChatToPlayer(player, "^5Auto-Selected^2 5% Increased Damage")
-					player_table[SteamID][PlayerClass].skill_D = player_table[SteamID][PlayerClass].skill_D + 1
+					playerID.LevelUpDamage()
 				end
 			end -- auto choice
 		end -- auto level
 		BroadCastSoundToPlayer(player, "Misc.Unagi")
-	end -- uner lvl 17
+	end -- under lvl 17
 end
 
 return xp_module
