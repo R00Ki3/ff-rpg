@@ -1,6 +1,8 @@
 
 local skills_module = {}
 
+-- Basic Skills
+
 -- Adds x percentage life and armor on each tick (7 sec)
 function skills_module.Regeneration(player)
     local lvl = player.GetRegenLevel()
@@ -12,6 +14,7 @@ function skills_module.Regeneration(player)
         playerID:AddArmor(armor_amount)
     end
 end
+
 -- Increases base movement speed by a percentage
 -- Max base movement is 600 (hard cap?)
 function skills_module.Speed(player)
@@ -22,6 +25,7 @@ function skills_module.Speed(player)
 		playerID:AddEffect( EF.kSpeedlua1, -1, 0, 0.05 * lvl + 1  )
 	end
 end
+
 --Reduces damage taken from all sources by a percentage
 function skills_module.Resistance(player, damageinfo)
     local lvl = player.GetResistLevel()
@@ -34,6 +38,7 @@ function skills_module.IncreaseDamage(player, damageinfo)
     if lvl >= 1 then damageinfo:ScaleDamage(0.05 * lvl + 1) end
 end
 
+--Increases flag throwing distance
 function skills_module.FlagThrow(player)
     local lvl = player.GetFlagThrowLevel()
     if lvl >= 1 then
@@ -43,5 +48,7 @@ function skills_module.FlagThrow(player)
         FLAG_THROW_SPEED = 330 -- base throw speed for unleveled skill
     end
 end
+-- Class Skills
+
 
 return skills_module

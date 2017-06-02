@@ -1,6 +1,6 @@
 local playerModule = require "globalscripts.rpg_player_module"
 local hudModule = require "globalscripts.rpg_hud_module"
-local skillsModule = require "globalscripts.rpg_skills_module" -- soon to remove
+local skillsModule = require "globalscripts.rpg_skills_module"
 local ID = playerModule.getPlayer
 local playerList = {}
 --local playerArray = {}
@@ -33,7 +33,9 @@ function startup()
 end
 
 function player_connected(playerID)
-    playerList[ID(playerID)] = playerModule.NewPlayer(playerID)
+	local player = playerModule.NewPlayer(playerID)
+	playerList[ID(playerID)] = player
+	player.SetClassLine()
 end
 
 function player_switchteam(playerID, old, new )
@@ -134,7 +136,7 @@ end
 function basecap:ontouch(playerID)
 	local player = playerList[ID(playerID)]
 	player.GainXp(80)
-	player.SetFlagTouched(false) -- resets flag touch 
+	player.SetFlagTouched(false) -- resets flag touch
 end
 
 --So, you made a selection.. Lets save that information
@@ -147,7 +149,6 @@ function player_onmenuselect(playerID, menu_name, selection)
             player.LevelUpResist()
 		elseif selection == 7 then
             player.LevelUpSpeed()
-            skillsModule.Speed(player) --Update speed on skill selection
 		elseif selection == 8 then
             player.LevelUpRegen()
 		elseif selection == 9 then
@@ -172,6 +173,10 @@ function player_onchat(playerID, chatstring)
 		return false
 	end
     if message == "!xp" then
+        player.GainXp(50)
+        return false
+    end
+	if message == "!auto" then
         player.GainXp(50)
         return false
     end
