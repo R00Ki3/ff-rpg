@@ -1,9 +1,9 @@
 local playerModule = require "globalscripts.rpg_player_module"
 local hudModule = require "globalscripts.rpg_hud_module"
 local skillsModule = require "globalscripts.rpg_skills_module"
+
 local ID = playerModule.getPlayer
 local playerList = {}
---local playerArray = {}
 local functionList = {
 	startup = startup,
 	player_spawn = player_spawn,
@@ -59,9 +59,12 @@ end
 
 
 function player_spawn(playerID)
+	if type(functionList.player_spawn) == "function" then
+		functionList.player_spawn(playerID)
+	end
     local player = playerList[ID(playerID)]
     player.UpdateSpawn()
-    skillsModule.Speed(player)
+	skillsModule.Speed(player)
 end
 
 function player_ondamage(playerID, damageinfo)
@@ -71,13 +74,13 @@ function player_ondamage(playerID, damageinfo)
     local attacker = playerList[ID(player)]
     local victim = playerList[ID(playerID)]
 
-
     if not (victim.GetTeamID() == attacker.GetTeamID()) then
         -- don't allow DETPACKS to gain this bonus
         if damageinfo:GetDamageType() ~= 320 then
             local xp_amount = damageinfo:GetDamage() * 0.30
             attacker.GainXp(xp_amount)
         end
+		skillsModule.Soldier().RocketSnare(victim, damageinfo)
     end
 
     --Basic Skill Calls
@@ -154,6 +157,16 @@ function player_onmenuselect(playerID, menu_name, selection)
 		elseif selection == 9 then
             player.LevelUpRoleSkill()
 		end
+	elseif menu_name =="LEVEL_UP_ULT" then
+		if selection == 6 then
+			player.LevelUlt(1)
+		elseif selection == 7 then
+			player.LevelUlt(2)
+		elseif selection == 8 then
+			player.LevelUlt(3)
+		elseif selection == 9 then
+			player.LevelUlt(4)
+		end
 	end
 end
 
@@ -177,8 +190,14 @@ function player_onchat(playerID, chatstring)
         return false
     end
 	if message == "!auto" then
-        player.GainXp(50)
+        player.ToggleAutoLevel()
         return false
     end
-	return true
+
+	if message == "!lvlult" then
+        player.SetAllowUlt(true)
+		player.LevelUp()
+        return false
+    end
+	return true -- Allow other chatter
 end

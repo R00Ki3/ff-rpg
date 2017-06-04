@@ -21,6 +21,9 @@ function xp_module.NewExperienceLine(playerID)
     function self.GetLevel() return level end
     function self.SetLevel(int) level = int end
     function self.LevelUp()
+        if level == 6 or level == 11 or level == 18 then
+            playerID.SetAllowUlt(true)
+        elseif level > 18 then return end
         level = level + 1
         xp =  xp % xp_to_next -- Keep leftover xp on lvel
         local toFloor = math.floor
@@ -61,6 +64,24 @@ function xp_module.NewExperienceLine(playerID)
         damage_level = damage_level + 1
     end
 
+    -- Four Ultra Skills
+    local ult_a, ult_b, ult_c, ult_d = false, false, false, false
+    function self.GetUlt(int)
+        if int == 1 then return ult_a
+        elseif int == 2 then return ult_b
+        elseif int == 3 then return ult_c
+        elseif int == 4 then return ult_d end
+    end
+
+    function self.LevelUlt(int)
+        if int == 1 then ult_a = true
+        elseif int == 2 then ult_b = true
+        elseif int == 3 then ult_c = true
+        elseif int == 4 then ult_d = true end
+        -- After ult has been selected disallow for next level
+		playerID.SetAllowUlt(false)
+    end
+
     return self
 end
 
@@ -78,33 +99,40 @@ end
 function LevelUpDelay(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
+
 		--Because everyone loves points, right?
 	player:AddFortPoints(100 * level, "Leveling up!")
 
 	DestroyMenu( "LEVEL_UP" )
-	--DestroyMenu( "LEVEL_UP_ULT" )
+    DestroyMenu( "LEVEL_UP_ULT" )
 
---[[	if playerID.AllowUlt() then
+	if playerID.IsAllowUlt() then --Get ult at 6, 11, 18
 		CreateMenu( "LEVEL_UP_ULT", "Select an Ultimate", -1 )
 
-		if player_table[SteamID][PlayerClass].skill_ult_1 < 1 and SKILL_NAME[PlayerClass].ULT_1 ~= "Null" then
-			AddMenuOption( "LEVEL_UP_ULT", 6 , SKILL_NAME[PlayerClass].ULT_1.." ("..SKILL_NAME[PlayerClass].INFO_1..")")
+        local ult_name = playerID.GetUltName(1)
+        local ult_desc = playerID.GetUltDesc(1)
+        -- Show players ults they dont already have
+		if not playerID.GetUlt(1) then
+			AddMenuOption( "LEVEL_UP_ULT", 6 , ult_name .." (".. ult_desc ..")")
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_2 < 1 and SKILL_NAME[PlayerClass].ULT_2 ~= "Null" then
-			AddMenuOption( "LEVEL_UP_ULT", 7 , SKILL_NAME[PlayerClass].ULT_2.." ("..SKILL_NAME[PlayerClass].INFO_2..")")
+		if not playerID.GetUlt(2) then
+            ult_name = playerID.GetUltName(2)
+            ult_desc = playerID.GetUltDesc(2)
+			AddMenuOption( "LEVEL_UP_ULT", 7 , ult_name .." (".. ult_desc ..")")
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_3 < 1 and SKILL_NAME[PlayerClass].ULT_3 ~= "Null" then
-			AddMenuOption( "LEVEL_UP_ULT", 8 , SKILL_NAME[PlayerClass].ULT_3.." ("..SKILL_NAME[PlayerClass].INFO_3..")")
+		if not playerID.GetUlt(3) then
+            ult_name = playerID.GetUltName(3)
+            ult_desc = playerID.GetUltDesc(3)
+			AddMenuOption( "LEVEL_UP_ULT", 8 , ult_name .." (".. ult_desc ..")")
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_4 < 1 and SKILL_NAME[PlayerClass].ULT_4 ~= "Null" then
-			AddMenuOption( "LEVEL_UP_ULT", 9 , SKILL_NAME[PlayerClass].ULT_4.." ("..SKILL_NAME[PlayerClass].INFO_4..")")
+		if not playerID.GetUlt(4) then
+            ult_name = playerID.GetUltName(4)
+            ult_desc = playerID.GetUltDesc(4)
+			AddMenuOption( "LEVEL_UP_ULT", 9 , ult_name .." (".. ult_desc ..")")
 		end
 
 		ShowMenuToPlayer(player, "LEVEL_UP_ULT")
-
-		BroadCastSoundToPlayer( player, "Misc.Unagi" )
-	end --]]
-	if level <= 17 then
+	else
 		-- Check to see if player selected auto leveling
 		if not playerID.GetAutoLevel() then
             local class_id = playerID.GetClassID()
@@ -122,7 +150,6 @@ function LevelUpDelay(playerID)
 			end
 
 			ShowMenuToPlayer(player, "LEVEL_UP")
-
 		else
 			local auto_choice = RandomInt(1, 4)
 
@@ -140,8 +167,8 @@ function LevelUpDelay(playerID)
 				end
 			end -- auto choice
 		end -- auto level
-		BroadCastSoundToPlayer(player, "Misc.Unagi")
-	end -- under lvl 17
+	end
+    BroadCastSoundToPlayer(player, "Misc.Unagi")
 end
 
 return xp_module
