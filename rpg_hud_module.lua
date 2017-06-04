@@ -22,7 +22,7 @@ function hud_module.UpdateAll(player)
 		AddHudText(playerID, "Progress_level","Level: "..player.GetLevel().." | Class: ".. class, 166, 450, 0 )
 
 		--Skill information
-		AddHudText(playerID, "Progress_regen","+"..tostring(5 * player.GetRegenLevel()).."% Regeneration", 293, 469, 0 )
+		AddHudText(playerID, "Progress_regen","+".. 5 * player.GetRegenLevel().."% Regeneration", 293, 469, 0 )
 		AddHudText(playerID, "Progress_resist","+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
 		AddHudText(playerID, "Progress_speed","+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
 
@@ -31,22 +31,24 @@ function hud_module.UpdateAll(player)
 		else
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(5 * player.GetDamageLevel()).."% Damage", 370, 469, 0 )
 		end
-
-		--[[ WIP old rpg methods
+        local ult_name = player.GetUltName(1)
         --Skill ult information
-		if player_table[SteamID][PlayerClass].skill_ult_1 >= 1 then
-			AddHudText( player, "Progress_ult_1","["..SKILL_NAME[PlayerClass].ULT_1.."]", 455, 469, 0 )
+		if player.GetUlt(1) then
+			AddHudText(playerID, "Progress_ult_1","["..ult_name.."]", 455, 469, 0 )
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_2 >= 1 then
-			AddHudText( player, "Progress_ult_2","["..SKILL_NAME[PlayerClass].ULT_2.."]", 550, 469, 0 )
+		if player.GetUlt(2) then
+            ult_name = player.GetUltName(2)
+			AddHudText(playerID, "Progress_ult_2","["..ult_name.."]", 550, 469, 0 )
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_3 >= 1 then
-			AddHudText( player, "Progress_ult_3","["..SKILL_NAME[PlayerClass].ULT_3.."]", 550, 461, 0 )
+		if player.GetUlt(3) then
+            ult_name = player.GetUltName(3)
+			AddHudText(playerID, "Progress_ult_3","["..ult_name.."]", 550, 461, 0 )
 		end
-		if player_table[SteamID][PlayerClass].skill_ult_4 >= 1 then
-			AddHudText( player, "Progress_ult_4","["..SKILL_NAME[PlayerClass].ULT_4.."]", 455, 461, 0 )
+		if player.GetUlt(4) then
+            ult_name = player.GetUltName(4)
+			AddHudText(playerID, "Progress_ult_4","["..ult_name.."]", 455, 461, 0 )
 		end
-        --]]
+
 	end --  is alive
 end
 function hud_module.UpdateResist(player)
@@ -114,6 +116,5 @@ function hud_module.HideAll(playerID)
 	RemoveHudItem(playerID, "Progress_ult_3")
 	RemoveHudItem(playerID, "Progress_ult_4")
 end
-
 
 return hud_module

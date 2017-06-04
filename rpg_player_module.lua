@@ -14,6 +14,7 @@ function player_module.NewPlayer(playerID)
     local self = {}
     local classLine = {}
     local currentLine = nil
+    local currentUlt = nil
 
     local player = CastToPlayer(playerID)
     function self.GetPlayer() return player end
@@ -25,10 +26,22 @@ function player_module.NewPlayer(playerID)
         end
     end
 
-    function self.UpdateCurrentLine(int)
-        currentLine = classLine[int]
+    function self.UpdateCurrentLine(int) currentLine = classLine[int] end
+    function self.UpdateCurrentUlt(int)
+        local skill_table = {
+            skillsModule.Scout(),
+            skillsModule.Sniper(),
+            skillsModule.Soldier(),
+            skillsModule.Demoman(),
+            skillsModule.Medic(),
+            skillsModule.HwGuy(),
+            skillsModule.Pyro(),
+            skillsModule.Spy(),
+            skillsModule.Engineer(),
+            skillsModule.Civilian()
+        }
+        currentUlt = skill_table[int]
     end
-
     function self.GetXp() return currentLine.GetXp() end
     function self.SetXp(int) currentLine.SetXp(int) end
     function self.GainXp(amount)
@@ -43,8 +56,6 @@ function player_module.NewPlayer(playerID)
         hudModule.UpdateAll(self)
      end
 
-
-
     local auto_level = false
     function self.GetAutoLevel() return auto_level end
     function self.ToggleAutoLevel() auto_level = not auto_level end
@@ -53,7 +64,8 @@ function player_module.NewPlayer(playerID)
     function self.SetXpToNext(int)  currentLine.SetXpToNext(int) end
 
     local allow_ult = false
-    function self.AllowUlt() return allow_ult end
+    function self.IsAllowUlt() return allow_ult end
+    function self.SetAllowUlt(boolean) allow_ult = boolean end
 
     local flag_touched = false
     function self.IsFlagTouched() return flag_touched end
@@ -121,19 +133,31 @@ function player_module.NewPlayer(playerID)
             self.LevelUpDamage()
         end
     end
+    -- Ultimate Skills
+    function self.GetUltName(int) return currentUlt.GetUltName(int) end
+    function self.GetUltDesc(int) return currentUlt.GetUltDesc(int) end
+    function self.GetUlt(int) return currentLine.GetUlt(int) end
+    function self.LevelUlt(int)
+        local msg = currentUlt.GetUltName(int)
+        currentLine.LevelUlt(int)
+        ChatToPlayer(player, "^5You Selected^2 "..msg)
+        --TODO: change update all to only update current skill
+        hudModule.UpdateAll(self)
+    end
 
     local kill_count = 0
     function self.GetKillCount() return kill_count end
-    function self.SetKillCount(number) kill_count = number end
+    function self.SetKillCount(int) kill_count = int end
     function self.AddToKillCount() kill_count = kill_count + 1 end
 
     function self.UpdateSpawn()
         self.SetKillCount(0)
-        team_id = player:GetTeamId()
-        class_id = player:GetClass()
-        class_name = utilModule.GetClassName(class_id)
-        self.UpdateCurrentLine(class_id)
         self.SetFlagTouched(false)
+        team_id = player:GetTeamId() -- TODO: not required every spawn
+        class_id = player:GetClass() -- TODO: not required every spawn
+        class_name = utilModule.GetClassName(class_id) -- TODO: not required every spawn
+        self.UpdateCurrentLine(class_id) -- TODO: not required every spawn
+        self.UpdateCurrentUlt(class_id) -- TODO: not required every spawn
         hudModule.UpdateAll(self)
     end
 
