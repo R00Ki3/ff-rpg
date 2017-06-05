@@ -55,15 +55,33 @@ function skills_module.FlagThrow(player)
 end
 -- Class Skills
 function skills_module.Scout()
+    local BALLISTIC_ARMOR = 0.75 --25%
+    local EXPLOSIVE_ARMOR = 0.75
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
-            "Empty", "Empty",
+            "Ballistic Armor", "25% Reduced Damage from Bullets",
+            "Explosive Armor", "25% Reduced Damage from Explosions",
             "Empty", "Empty",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
+
+    function self.BallisticArmor(player, damageinfo)
+        if player.GetClassID() == 1 and player.GetUlt(1) then
+            if damageinfo:GetDamageType() == 4098 then
+                damageinfo:ScaleDamage(BALLISTIC_ARMOR)
+            end
+        end
+    end
+
+    function self.ExplosiveArmor(player, damageinfo)
+        if player.GetClassID() == 1 and player.GetUlt(2) then
+            if damageinfo:GetDamageType() == 64 or damageinfo:GetDamageType() == 8 then
+                damageinfo:ScaleDamage(EXPLOSIVE_ARMOR)
+            end
+        end
+    end
 
     return self
 end
@@ -84,10 +102,11 @@ end
 
 function skills_module.Soldier()
     local ROCKET_SNARE_TIME = 0.3
+    local SELF_RESISTANCE = 0.10
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Rocket Snare", "Snares a player for "..ROCKET_SNARE_TIME.." seconds",
-            "Empty", "Empty",
+            "Rocket Snare", "Snares a player for 0.3 seconds",
+            "Self Resistance", "90% Reduced Self Damage",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -110,6 +129,12 @@ function skills_module.Soldier()
         end
     end
 
+    function self.SelfResistance(player, damageinfo)
+        if player.GetClassID() == 3 and player.GetUlt(2) then
+            damageinfo:ScaleDamage(SELF_RESISTANCE)
+        end
+    end
+
     return self
 end
 
@@ -128,9 +153,12 @@ function skills_module.Demoman()
 end
 
 function skills_module.Medic()
+    local HEALER_MULTIPLIER = 0.40
+	local ARMORER_MULTIPLIER = 0.40
+	local CONC_HEAL = 50
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Natural Healer", "Heal Teammates On Hit and On Concussion",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -138,19 +166,50 @@ function skills_module.Medic()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
+    function self.NaturalHealer(healer, player, damageinfo)
+        if healer.GetClassID() == 5 and healer.GetUlt(1) then
+            if damageinfo:GetDamageType() ~= 64 then
+                local playerID = player.GetPlayer()
+                playerID:AddHealth(damageinfo:GetDamage() * HEALER_MULTIPLIER)
+                playerID:AddArmor(damageinfo:GetDamage() * ARMORER_MULTIPLIER)
+            end
+        end
+    end
+
+    function self.NaturalHealerConc(player, healer)
+        if healer.GetClassID() == 5 and healer.GetUlt(1) then
+            local playerID = player.GetPlayer()
+            playerID:AddHealth(CONC_HEAL)
+        end
+    end
     return self
 end
 
 function skills_module.HwGuy()
+    local ENRAGE_MAX_MULTIPLIER = 2.5
+    local ENRAGE_LIFE_ACTIVE = 0.8 -- 80 life
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Enrage", "Empty",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
+
+    function self.Enrage(player, damageinfo)
+        if player.GetClassID() == 6 and player.GetUlt(1) then
+            local enrage_range = (100 / attacker:GetHealth() * ENRAGE_LIFE_ACTIVE)
+            if enrage_range >= ENRAGE_MAX_MULTIPLIER then
+                damageinfo:ScaleDamage(ENRAGE_MAX_MULTIPLIER)
+            elseif(enrage_range <= 1) then
+                damageinfo:ScaleDamage(1)
+            else
+                damageinfo:ScaleDamage(enrage_range)
+            end
+        end
+    end
 
     return self
 end
