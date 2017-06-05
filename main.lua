@@ -82,8 +82,11 @@ function player_ondamage(playerID, damageinfo)
             attacker.GainXp(xp_amount)
         end
 		skillsModule.Soldier().RocketSnare(victim, damageinfo)
+		skillsModule.Scout().Reflect(victim, attacker, damageinfo)
+		skillsModule.Spy().Teleport(victim, attacker, damageinfo)
 
     end
+
 	--Trigger on team mate
     if victim.GetTeamID() == attacker.GetTeamID() then
 		skillsModule.Soldier().SelfResistance(victim, damageinfo)
@@ -96,6 +99,7 @@ function player_ondamage(playerID, damageinfo)
 	skillsModule.Scout().BallisticArmor(victim, damageinfo)
 	skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
 	skillsModule.HwGuy().Enrage(attacker, damageinfo)
+	skillsModule.Medic().Momentum(attacker, damageinfo)
 end
 
 function player_killed(playerID, damageinfo)
@@ -113,7 +117,6 @@ function player_killed(playerID, damageinfo)
 
     if not (victim.GetTeamID() == attacker.GetTeamID()) then
         local kill_count = attacker.GetKillCount()
-		--local victim = GetPlayer(player_id)
 		if kill_count >= 3 then
             local xp_amount = 20 + 10 * 3
 			attacker.GainXp(xp_amount)
@@ -122,6 +125,7 @@ function player_killed(playerID, damageinfo)
 			attacker.GainXp(xp_amount)
 		end
         attacker.AddToKillCount()
+		skillsModule.Soldier().RocketScience(attacker)
 	end
 end
 
@@ -185,15 +189,7 @@ function player_onmenuselect(playerID, menu_name, selection)
             player.LevelUpRoleSkill()
 		end
 	elseif menu_name =="LEVEL_UP_ULT" then
-		if selection == 6 then
-			player.LevelUlt(1)
-		elseif selection == 7 then
-			player.LevelUlt(2)
-		elseif selection == 8 then
-			player.LevelUlt(3)
-		elseif selection == 9 then
-			player.LevelUlt(4)
-		end
+		player.LevelUlt(selection - 5)
 	end
 end
 

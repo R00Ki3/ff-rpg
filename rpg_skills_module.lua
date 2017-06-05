@@ -61,7 +61,7 @@ function skills_module.Scout()
     local thisUlt = utilModule.NewUlt(
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
-            "Empty", "Empty",
+            "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
@@ -79,6 +79,18 @@ function skills_module.Scout()
         if player.GetClassID() == 1 and player.GetUlt(2) then
             if damageinfo:GetDamageType() == 64 or damageinfo:GetDamageType() == 8 then
                 damageinfo:ScaleDamage(EXPLOSIVE_ARMOR)
+            end
+        end
+    end
+
+    function self.Reflect(player, attacker, damageinfo)
+        local REFLECT_AMOUNT = 0.10
+        if player.GetClassID() == 1 and player.GetUlt(3) then
+            if damageinfo:GetDamageType() == 268435456 then
+				return false -- Ignore fall damage?
+			else
+                local playerID = attacker.GetPlayer()
+                playerID:AddHealth(-damageinfo:GetDamage() * REFLECT_AMOUNT)
             end
         end
     end
@@ -107,7 +119,7 @@ function skills_module.Soldier()
     local thisUlt = utilModule.NewUlt(
             "Rocket Snare", "Snares a player for 0.3 seconds",
             "Self Resistance", "90% Reduced Self Damage",
-            "Empty", "Empty",
+            "Rocket Science", "Fully Reload Weapons On Kill",
             "Empty", "Empty"
             )
 
@@ -135,6 +147,12 @@ function skills_module.Soldier()
         end
     end
 
+    function self.RocketScience(player)
+        if player.GetClassID() == 3 and player.GetUlt(3) then
+            local playerID = player.GetPlayer()
+            playerID:ReloadClips()
+        end
+    end
     return self
 end
 
@@ -156,10 +174,12 @@ function skills_module.Medic()
     local HEALER_MULTIPLIER = 0.40
 	local ARMORER_MULTIPLIER = 0.40
 	local CONC_HEAL = 50
+
+    local MOMENTUM_MULTIPLIER = 0.32
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Natural Healer", "Heal Teammates On Hit and On Concussion",
-            "Empty", "Empty",
+            "Momentum", "Increased Damage at Increased Speeds",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -182,6 +202,16 @@ function skills_module.Medic()
             playerID:AddHealth(CONC_HEAL)
         end
     end
+
+    function self.Momentum(player, damageinfo)
+        if player.GetClassID() == 5 and player.GetUlt(2) then
+            local playerID = player.GetPlayer()
+            local speed = playerID:GetSpeed()
+            if speed >= 320 then
+                damageinfo:ScaleDamage((speed * MOMENTUM_MULTIPLIER) / 100)
+            end
+        end
+    end
     return self
 end
 
@@ -190,7 +220,7 @@ function skills_module.HwGuy()
     local ENRAGE_LIFE_ACTIVE = 0.8 -- 80 life
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Enrage", "Empty",
+            "Enrage", "Damage Increases as Health Decreases to a Max of 2.5X",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -231,7 +261,7 @@ end
 function skills_module.Spy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Teleport Tranq", "Teleport to Enemy On Hit",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -239,6 +269,21 @@ function skills_module.Spy()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
+    function self.Teleport(player, attacker, damageinfo)
+        if player.GetClassID() == 8 and player.GetUlt(1) then
+            local weapon = damageinfo:GetInflictor():GetClassName()
+            if weapon == "ff_projectile_dart" then
+                local playerID = player.GetPlayer()
+                local attackerID = attacker.GetPlayer()
+                local origin = {
+                    playerID:GetOrigin().x,
+                    playerID:GetOrigin().y,
+                    playerID:GetOrigin().z
+                }
+                attackerID:SetOrigin( Vector( origin[1], origin[2], origin[z] + 96 ))
+            end
+        end
+    end
     return self
 end
 
