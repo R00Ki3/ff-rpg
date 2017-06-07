@@ -21,10 +21,10 @@ function xp_module.NewExperienceLine(playerID)
     function self.GetLevel() return level end
     function self.SetLevel(int) level = int end
     function self.LevelUp()
+        level = level + 1
         if level == 6 or level == 11 or level == 18 then
             playerID.SetAllowUlt(true)
         elseif level > 18 then return end
-        level = level + 1
         xp =  xp % xp_to_next -- Keep leftover xp on lvel
         local toFloor = math.floor
         xp_to_next = toFloor(xp_to_next * 1.15)
@@ -65,20 +65,13 @@ function xp_module.NewExperienceLine(playerID)
     end
 
     -- Four Ultra Skills
-    local ult_a, ult_b, ult_c, ult_d = false, false, false, false
+    local ult = { false, false, false, false }
     function self.GetUlt(int)
-        if int == 1 then return ult_a
-        elseif int == 2 then return ult_b
-        elseif int == 3 then return ult_c
-        elseif int == 4 then return ult_d end
+        return ult[int]
     end
 
     function self.LevelUlt(int)
-        if int == 1 then ult_a = true
-        elseif int == 2 then ult_b = true
-        elseif int == 3 then ult_c = true
-        elseif int == 4 then ult_d = true end
-        -- After ult has been selected disallow for next level
+        ult[int] = true
 		playerID.SetAllowUlt(false)
     end
 

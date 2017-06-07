@@ -18,9 +18,21 @@ functionList.baseflag = {
 
 PrecacheSound("Misc.Unagi")
 
-function player_tick()
+local function regen_tick()
     for _, player in pairs(playerList) do
         skillsModule.Regeneration(player)
+    end
+end
+
+local function matter_tick()
+	for _, player in pairs(playerList) do
+        skillsModule.Engineer().MatterGenerator(player)
+    end
+end
+
+local function explosive_tick()
+	for _, player in pairs(playerList) do
+        skillsModule.Demoman().ExplosiveSupply(player)
     end
 end
 
@@ -28,8 +40,10 @@ function startup()
 	if type(functionList.startup) == "function" then
 		functionList.startup()
 	end
+	AddScheduleRepeating("explosive_regen", 25, explosive_tick)
+	AddScheduleRepeating("health_regen", 7, regen_tick)
+	AddScheduleRepeating("matter_regen", 1, matter_tick)
 
-	AddScheduleRepeating("health_regen", 7, player_tick)
 end
 
 function player_connected(playerID)
@@ -74,18 +88,33 @@ function player_ondamage(playerID, damageinfo)
     local attacker = playerList[ID(player)]
     local victim = playerList[ID(playerID)]
 
+	--Trigger on enemy
     if not (victim.GetTeamID() == attacker.GetTeamID()) then
         -- don't allow DETPACKS to gain this bonus
         if damageinfo:GetDamageType() ~= 320 then
             local xp_amount = damageinfo:GetDamage() * 0.30
             attacker.GainXp(xp_amount)
         end
-		skillsModule.Soldier().RocketSnare(victim, damageinfo)
+		skillsModule.Soldier().RocketSnare(victim, attacker, damageinfo)
+		skillsModule.Scout().Reflect(victim, attacker, damageinfo)
+		skillsModule.Spy().Teleport(victim, attacker, damageinfo)
+		skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
+		skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
     end
 
-    --Basic Skill Calls
+	--Trigger on team mate
+    if victim.GetTeamID() == attacker.GetTeamID() then
+		skillsModule.Soldier().SelfResistance(victim, damageinfo)
+		skillsModule.Medic().NaturalHealer(attacker, victim, damageinfo)
+	end
+
+    --Triggers everyone
     skillsModule.Resistance(victim, damageinfo)
     skillsModule.IncreaseDamage(attacker, damageinfo)
+	skillsModule.Scout().BallisticArmor(victim, damageinfo)
+	skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
+	skillsModule.HwGuy().Enrage(attacker, damageinfo)
+	skillsModule.Medic().Momentum(attacker, damageinfo)
 end
 
 function player_killed(playerID, damageinfo)
@@ -103,7 +132,6 @@ function player_killed(playerID, damageinfo)
 
     if not (victim.GetTeamID() == attacker.GetTeamID()) then
         local kill_count = attacker.GetKillCount()
-		--local victim = GetPlayer(player_id)
 		if kill_count >= 3 then
             local xp_amount = 20 + 10 * 3
 			attacker.GainXp(xp_amount)
@@ -112,7 +140,25 @@ function player_killed(playerID, damageinfo)
 			attacker.GainXp(xp_amount)
 		end
         attacker.AddToKillCount()
+		skillsModule.Soldier().RocketScience(attacker)
 	end
+end
+
+function player_onconc(player, playerID)
+	local attacker = playerList[ID(playerID)]
+	local victim = playerList[ID(player)]
+
+	--Trigger on enemy
+	if not (victim.GetTeamID() == attacker.GetTeamID()) then
+		attacker.GainXp(10)
+	end
+
+	--Trigger on teammate
+	if victim.GetTeamID() == attacker.GetTeamID() then
+		skillsModule.Medic().NaturalHealerConc(victim, attacker)
+	end
+
+	return true
 end
 
 function baseflag:touch(playerID)
@@ -158,15 +204,7 @@ function player_onmenuselect(playerID, menu_name, selection)
             player.LevelUpRoleSkill()
 		end
 	elseif menu_name =="LEVEL_UP_ULT" then
-		if selection == 6 then
-			player.LevelUlt(1)
-		elseif selection == 7 then
-			player.LevelUlt(2)
-		elseif selection == 8 then
-			player.LevelUlt(3)
-		elseif selection == 9 then
-			player.LevelUlt(4)
-		end
+		player.LevelUlt(selection - 5)
 	end
 end
 
