@@ -18,9 +18,21 @@ functionList.baseflag = {
 
 PrecacheSound("Misc.Unagi")
 
-function player_tick()
+local function regen_tick()
     for _, player in pairs(playerList) do
         skillsModule.Regeneration(player)
+    end
+end
+
+local function matter_tick()
+	for _, player in pairs(playerList) do
+        skillsModule.Engineer().MatterGenerator(player)
+    end
+end
+
+local function explosive_tick()
+	for _, player in pairs(playerList) do
+        skillsModule.Demoman().ExplosiveSupply(player)
     end
 end
 
@@ -28,8 +40,10 @@ function startup()
 	if type(functionList.startup) == "function" then
 		functionList.startup()
 	end
+	AddScheduleRepeating("explosive_regen", 25, explosive_tick)
+	AddScheduleRepeating("health_regen", 7, regen_tick)
+	AddScheduleRepeating("matter_regen", 1, matter_tick)
 
-	AddScheduleRepeating("health_regen", 7, player_tick)
 end
 
 function player_connected(playerID)
@@ -81,10 +95,11 @@ function player_ondamage(playerID, damageinfo)
             local xp_amount = damageinfo:GetDamage() * 0.30
             attacker.GainXp(xp_amount)
         end
-		skillsModule.Soldier().RocketSnare(victim, damageinfo)
+		skillsModule.Soldier().RocketSnare(victim, attacker, damageinfo)
 		skillsModule.Scout().Reflect(victim, attacker, damageinfo)
 		skillsModule.Spy().Teleport(victim, attacker, damageinfo)
-
+		skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
+		skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
     end
 
 	--Trigger on team mate

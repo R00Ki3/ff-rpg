@@ -101,13 +101,21 @@ end
 function skills_module.Sniper()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Critical Hit", "20% chance to do 2x Damage",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
+
+    function self.CriticalHit(player, damageinfo)
+        if player.GetClassID() == 2 and player.GetUlt(1) then
+            if RandomInt(1,5) == 3 then
+                damageinfo.ScaleDamage(2)
+            end
+        end
+    end
 
     return self
 end
@@ -126,17 +134,19 @@ function skills_module.Soldier()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
-    function self.RocketSnare(player, damageinfo) -- ult 1
-        local function StopSnare(playerID)
-        	playerID:LockInPlace(false)
-        end
-        if player.GetClassID() == 3 and player.GetUlt(1) then
+    function self.RocketSnare(player, attacker, damageinfo) -- ult 1
+
+        if attacker.GetClassID() == 3 and attacker.GetUlt(1) then
             local weapon = damageinfo:GetInflictor():GetClassName()
             if weapon == "ff_projectile_rocket" then
                 local playerID = player.GetPlayer()
                 local steam_id = player.GetSteamID()
+
+                local function StopSnare()
+                    playerID:LockInPlace(false)
+                end
                 playerID:LockInPlace(true)
-                AddSchedule("snare_"..steam_id, ROCKET_SNARE_TIME, StopSnare, playerID)
+                AddSchedule("snare_"..steam_id, ROCKET_SNARE_TIME, StopSnare)
             end
         end
     end
@@ -159,7 +169,7 @@ end
 function skills_module.Demoman()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Heavy Explosive Supply", "Resuppy Mirvs, Detpacks, and Pipes Every 25 seconds",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -167,6 +177,14 @@ function skills_module.Demoman()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
+    function self.ExplosiveSupply(player)
+        if player.GetClassID() == 4 and player.GetUlt(1) then
+            local playerID = player.GetPlayer()
+            playerID:AddAmmo(Ammo.kDetpack, 1)
+            playerID:AddAmmo(Ammo.kRockets, 10)
+            playerID:AddAmmo(Ammo.kGren2, 1)
+        end
+    end
     return self
 end
 
@@ -180,7 +198,7 @@ function skills_module.Medic()
     local thisUlt = utilModule.NewUlt(
             "Natural Healer", "Heal Teammates On Hit and On Concussion",
             "Momentum", "Increased Damage at Increased Speeds",
-            "Empty", "Empty",
+            "Poisoned Ammunition", "3 Second Gas Effect On Hit",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
@@ -209,6 +227,20 @@ function skills_module.Medic()
             local speed = playerID:GetSpeed()
             if speed >= 320 then
                 damageinfo:ScaleDamage((speed * MOMENTUM_MULTIPLIER) / 100)
+            end
+        end
+    end
+
+    function self.PoisonAmmo(player, attacker, damageinfo)
+        if attacler.GetClassID() == 5 and attacker.GetUlt(3) then
+            if damageinfo:GetDamageType() ~= 64 then
+                local playerID = player.GetPlayer()
+                playerID:AddEffect(EF.kGas, 2, 2, 2)
+
+                local function StopPoison()
+                    playerID:RemoveEffect(EF.kGas)
+                end
+                AddSchedule("Poison_"..player.GetSteamID(), 3, StopPoison)
             end
         end
     end
@@ -290,13 +322,22 @@ end
 function skills_module.Engineer()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Matter Generator", "Generates Cells Every Second",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
+
+    function self.MatterGenerator(player)
+        if player.GetClassID() == 9 and player.GetUlt(1) then
+            local playerID = player.GetPlayer()
+            local cells = playerID:GetAmmoCount(Ammo.kCells) + 20
+            local give_cells =  200 / cells + 3
+            playerID:AddAmmo(Ammo.kCells, give_cells)
+        end
+    end
 
     return self
 end
