@@ -170,7 +170,7 @@ function skills_module.Demoman()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Heavy Explosive Supply", "Resuppy Mirvs, Detpacks, and Pipes Every 25 seconds",
-            "Medicated Detpack", "Max Heal to Teammates On Explode",
+            "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -185,7 +185,7 @@ function skills_module.Demoman()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
-
+ --[[ BROKEN
     function self.DetpackMedic(player, attacker, damageinfo)
         if attacker.GetClassID() == 4 and attacker.GetUlt(2) then
             if damageinfo:GetDamageType() == 320 then
@@ -196,6 +196,7 @@ function skills_module.Demoman()
             end
         end
     end
+    --]]
     return self
 end
 

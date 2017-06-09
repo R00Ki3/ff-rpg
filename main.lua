@@ -117,7 +117,6 @@ function player_ondamage(playerID, damageinfo)
 	    if victim.GetTeamID() == attacker.GetTeamID() then
 			skillsModule.Soldier().SelfResistance(victim, damageinfo)
 			skillsModule.Medic().NaturalHealer(victim, attacker, damageinfo)
-			skillsModule.Demoman().DetpackMedic(victim, attacker, damageinfo)
 		end
 
 	    --Triggers everyone
