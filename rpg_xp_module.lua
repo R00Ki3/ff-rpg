@@ -81,12 +81,13 @@ end
 function xp_module.LevelUp(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
+    local steam_id = playerID.GetSteamID()
 
 	ObjectiveNotice(player, "Level "..level.."!" )
 	BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
 	ChatToPlayer(player,"^5You are now level ^4"..level)
 
-	AddSchedule("level_up", 2, LevelUpDelay, playerID)
+	AddSchedule("level_up"..steam_id, 2, LevelUpDelay, playerID)
 end
 
 function LevelUpDelay(playerID)

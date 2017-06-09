@@ -71,7 +71,6 @@ function player_switchclass(playerID, old, new )
 	return true
 end
 
-
 function player_spawn(playerID)
 	if type(functionList.player_spawn) == "function" then
 		functionList.player_spawn(playerID)
@@ -84,37 +83,51 @@ end
 function player_ondamage(playerID, damageinfo)
     if not damageinfo then return end
     local player = damageinfo:GetAttacker()
-    if not IsPlayer(player) then return end
-    local attacker = playerList[ID(player)]
-    local victim = playerList[ID(playerID)]
+	if not player then return end
+	local victim = playerList[ID(playerID)]
 
-	--Trigger on enemy
-    if not (victim.GetTeamID() == attacker.GetTeamID()) then
-        -- don't allow DETPACKS to gain this bonus
-        if damageinfo:GetDamageType() ~= 320 then
-            local xp_amount = damageinfo:GetDamage() * 0.30
-            attacker.GainXp(xp_amount)
-        end
-		skillsModule.Soldier().RocketSnare(victim, attacker, damageinfo)
-		skillsModule.Scout().Reflect(victim, attacker, damageinfo)
-		skillsModule.Spy().Teleport(victim, attacker, damageinfo)
-		skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
-		skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
-    end
+	if IsSentrygun(player) then
+		local sg_attacker = CastToSentrygun(player)
+		local sg_owner = sg_attacker:GetOwner()
+		local attacker = playerList[ID(sg_owner)]
 
-	--Trigger on team mate
-    if victim.GetTeamID() == attacker.GetTeamID() then
-		skillsModule.Soldier().SelfResistance(victim, damageinfo)
-		skillsModule.Medic().NaturalHealer(attacker, victim, damageinfo)
+		if not (victim.GetTeamID() ~= attacker.GetTeamID()) then
+			local xp_amount = damageinfo:GetDamage() * 0.30
+			attacker.GainXp(xp_amount)
+	    end
+	elseif IsPlayer(player) then
+		local attacker = playerList[ID(player)]
+		--Trigger on enemy
+	    if not (victim.GetTeamID() == attacker.GetTeamID()) then
+	        -- don't allow DETPACKS to gain this bonus
+	        if damageinfo:GetDamageType() ~= 320 then
+	            local xp_amount = damageinfo:GetDamage() * 0.30
+	            attacker.GainXp(xp_amount)
+	        end
+			skillsModule.Soldier().RocketSnare(victim, attacker, damageinfo)
+			skillsModule.Scout().Reflect(victim, attacker, damageinfo)
+			skillsModule.Spy().Teleport(victim, attacker, damageinfo)
+			skillsModule.Spy().BackstabBerserker(attacker, damageinfo)
+			skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
+			skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
+
+		end
+
+		--Trigger on team mate
+	    if victim.GetTeamID() == attacker.GetTeamID() then
+			skillsModule.Soldier().SelfResistance(victim, damageinfo)
+			skillsModule.Medic().NaturalHealer(victim, attacker, damageinfo)
+			skillsModule.Demoman().DetpackMedic(victim, attacker, damageinfo)
+		end
+
+	    --Triggers everyone
+	    skillsModule.Resistance(victim, damageinfo)
+	    skillsModule.IncreaseDamage(attacker, damageinfo)
+		skillsModule.Scout().BallisticArmor(victim, damageinfo)
+		skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
+		skillsModule.HwGuy().Enrage(attacker, damageinfo)
+		skillsModule.Medic().Momentum(attacker, damageinfo)
 	end
-
-    --Triggers everyone
-    skillsModule.Resistance(victim, damageinfo)
-    skillsModule.IncreaseDamage(attacker, damageinfo)
-	skillsModule.Scout().BallisticArmor(victim, damageinfo)
-	skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
-	skillsModule.HwGuy().Enrage(attacker, damageinfo)
-	skillsModule.Medic().Momentum(attacker, damageinfo)
 end
 
 function player_killed(playerID, damageinfo)
