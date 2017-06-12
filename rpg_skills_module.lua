@@ -62,7 +62,7 @@ function skills_module.Scout()
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
             "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
-            "Empty", "Empty"
+            "Concussion Supply", "Gives 1 Concussion every 7 Seconds"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -272,7 +272,7 @@ function skills_module.HwGuy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Enrage", "Damage Increases as Health Decreases to a Max of 2.5X",
-            "Empty", "Empty",
+            "Ammo & Slow Supply", "Gives 1 Slowfield and ammo every 7 Seconds",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -293,6 +293,13 @@ function skills_module.HwGuy()
         end
     end
 
+    function self.SlowSupply(player)
+        if player.GetClassID() == 6 and player.GetUlt(2) then
+            local playerID = player.GetPlayer()
+            playerID:AddAmmo(Ammo.kGren2, 1)
+            playerID:AddAmmo(Ammo.kShells, 50)
+        end
+    end
     return self
 end
 

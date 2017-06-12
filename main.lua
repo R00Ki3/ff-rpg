@@ -22,6 +22,7 @@ local function regen_tick()
     for _, player in pairs(playerList) do
         skillsModule.Regeneration(player)
 		skillsModule.Scout().ConcSupply(player)
+		skillsModule.HwGuy().SlowSupply(player)
     end
 end
 
