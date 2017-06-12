@@ -95,6 +95,13 @@ function skills_module.Scout()
         end
     end
 
+    function self.ConcSupply(player)
+        if player.GetClassID() == 1 and player.GetUlt(4) then
+            local playerID = player.GetPlayer()
+            playerID:AddAmmo(Ammo.kGren2, 1)
+        end
+    end
+
     return self
 end
 
@@ -126,7 +133,7 @@ function skills_module.Soldier()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Rocket Snare", "Snares a player for 0.3 seconds",
-            "Self Resistance", "90% Reduced Self Damage",
+            "Self Resistance", "80% Reduced Self Damage",
             "Rocket Science", "Fully Reload Weapons On Kill",
             "Empty", "Empty"
             )
@@ -274,7 +281,8 @@ function skills_module.HwGuy()
 
     function self.Enrage(player, damageinfo)
         if player.GetClassID() == 6 and player.GetUlt(1) then
-            local enrage_range = (100 / attacker:GetHealth() * ENRAGE_LIFE_ACTIVE)
+            local playerID = player.GetPlayer()
+            local enrage_range = (100 / playerID:GetHealth() * ENRAGE_LIFE_ACTIVE)
             if enrage_range >= ENRAGE_MAX_MULTIPLIER then
                 damageinfo:ScaleDamage(ENRAGE_MAX_MULTIPLIER)
             elseif(enrage_range <= 1) then
@@ -330,7 +338,7 @@ function skills_module.Spy()
     end
 
     function self.BackstabBerserker(player, damageinfo)
-        if player.GetClass == 8 and player.GetUlt() then
+        if player.GetClass() == 8 and player.GetUlt(2) then
             -- Damage type for backstab
     		if damageinfo:GetDamageType() == 268435456 then
                 local playerID  = player.GetPlayer()
@@ -340,8 +348,6 @@ function skills_module.Spy()
     			playerID:AddEffect(EF.kSpeedlua2, 5, 5, 1.5)
     		end
     	end
-
-
     end
     return self
 end
