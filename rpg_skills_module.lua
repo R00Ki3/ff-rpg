@@ -119,7 +119,7 @@ function skills_module.Sniper()
     function self.CriticalHit(player, damageinfo)
         if player.GetClassID() == 2 and player.GetUlt(1) then
             if RandomInt(1,5) == 3 then
-                damageinfo.ScaleDamage(2)
+                damageinfo:ScaleDamage(2)
             end
         end
     end
@@ -345,7 +345,7 @@ function skills_module.Spy()
     end
 
     function self.BackstabBerserker(player, damageinfo)
-        if player.GetClass() == 8 and player.GetUlt(2) then
+        if player.GetClassID() == 8 and player.GetUlt(2) then
             -- Damage type for backstab
     		if damageinfo:GetDamageType() == 268435456 then
                 local playerID  = player.GetPlayer()
