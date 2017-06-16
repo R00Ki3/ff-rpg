@@ -71,6 +71,9 @@ function player_module.NewPlayer(playerID)
     function self.IsFlagTouched() return flag_touched end
     function self.SetFlagTouched(boolean) flag_touched = boolean end
 
+    local player_name = player:GetName()
+    function self.GetPlayerName() return player_name end
+
     local steam_id = player:GetSteamID()
     function self.GetSteamID() return steam_id end
 
@@ -90,6 +93,7 @@ function player_module.NewPlayer(playerID)
     function self.GetRegenLevel() return currentLine.GetRegenLevel() end
     function self.LevelUpRegen()
         currentLine.LevelUpRegen()
+        LogLuaEvent(player:GetId(), 0, "add_skill", "skill_name", "regeneration", "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^2 5% Health and Armor Regeneration")
         hudModule.UpdateRegen(self)
     end
@@ -97,6 +101,7 @@ function player_module.NewPlayer(playerID)
     function self.GetResistLevel() return currentLine.GetResistLevel() end
     function self.LevelUpResist()
          currentLine.LevelUpResist()
+         LogLuaEvent(player:GetId(), 0, "add_skill", "skill_name", "resistance", "level", ""..self.GetLevel())
          ChatToPlayer(player, "^5You Selected^8 5% Increased Resistance")
          hudModule.UpdateResist(self)
     end
@@ -104,6 +109,7 @@ function player_module.NewPlayer(playerID)
     function self.GetSpeedLevel() return currentLine.GetSpeedLevel() end
     function self.LevelUpSpeed()
         currentLine.LevelUpSpeed()
+        LogLuaEvent(player:GetId(), 0, "add_skill", "skill_name", "speed", "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^4 5% Increased Speed")
         hudModule.UpdateSpeed(self)
         skillsModule.Speed(self)
@@ -113,6 +119,7 @@ function player_module.NewPlayer(playerID)
     function self.GetFlagThrowLevel() return currentLine.GetFlagThrowLevel() end
     function self.LevelUpFlagThrow()
         currentLine.LevelUpFlagThrow()
+        LogLuaEvent(player:GetId(), 0, "add_skill", "skill_name", "throwing", "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^9 15% Increased Flag Throwing")
         hudModule.UpdateThrow(self)
     end
@@ -122,6 +129,7 @@ function player_module.NewPlayer(playerID)
     function self.GetDamageLevel() return currentLine.GetDamageLevel() end
     function self.LevelUpDamage()
         currentLine.LevelUpDamage()
+        LogLuaEvent(player:GetId(), 0, "add_skill", "skill_name", "damage", "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^2 5% Increased Damage")
         hudModule.UpdateDamage(self)
     end
@@ -140,6 +148,7 @@ function player_module.NewPlayer(playerID)
     function self.LevelUlt(int)
         local msg = currentUlt.GetUltName(int)
         currentLine.LevelUlt(int)
+        LogLuaEvent(player:GetId(), 0, "add_skill", "ult_name", msg, "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^2 "..msg)
         --TODO: change update all to only update current skill
         hudModule.UpdateAll(self)
