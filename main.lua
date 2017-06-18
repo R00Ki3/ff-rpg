@@ -93,7 +93,7 @@ function player_ondamage(playerID, damageinfo)
 		local sg_owner = sg_attacker:GetOwner()
 		local attacker = playerList[ID(sg_owner)]
 
-		if not (victim.GetTeamID() ~= attacker.GetTeamID()) then
+		if not (victim.GetTeamID() == attacker.GetTeamID()) then
 			local xp_amount = damageinfo:GetDamage() * 0.30
 			attacker.GainXp(xp_amount)
 	    end
@@ -113,22 +113,24 @@ function player_ondamage(playerID, damageinfo)
 			skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
 			skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
 
-		end
-
-		--Trigger on team mate
-	    if victim.GetTeamID() == attacker.GetTeamID() then
+		--Trigger on friendly
+	    elseif victim.GetTeamID() == attacker.GetTeamID() then
 			skillsModule.Soldier().SelfResistance(victim, damageinfo)
 			skillsModule.Medic().NaturalHealer(victim, attacker, damageinfo)
+		--Triggers everyone
+		else
+		    skillsModule.Resistance(victim, damageinfo)
+		    skillsModule.IncreaseDamage(attacker, damageinfo)
+			skillsModule.Scout().BallisticArmor(victim, damageinfo)
+			skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
+			skillsModule.HwGuy().Enrage(attacker, damageinfo)
+			skillsModule.Medic().Momentum(attacker, damageinfo)
 		end
-
-	    --Triggers everyone
-	    skillsModule.Resistance(victim, damageinfo)
-	    skillsModule.IncreaseDamage(attacker, damageinfo)
-		skillsModule.Scout().BallisticArmor(victim, damageinfo)
-		skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
-		skillsModule.HwGuy().Enrage(attacker, damageinfo)
-		skillsModule.Medic().Momentum(attacker, damageinfo)
 	end
+end
+
+function buildable_ondamage()
+	--ChatToAll("Damage")
 end
 
 function player_killed(playerID, damageinfo)
@@ -156,6 +158,10 @@ function player_killed(playerID, damageinfo)
         attacker.AddToKillCount()
 		skillsModule.Soldier().RocketScience(attacker)
 	end
+end
+
+function buildable_killed()
+	--ChatToAll("Killed")
 end
 
 function player_onconc(player, playerID)
@@ -237,8 +243,9 @@ function player_onchat(playerID, chatstring)
 		player.LevelUp()
 		return false
 	end
-    if message == "!xp" then
-        player.GainXp(50)
+    if string.find(message, "!xp") == 1 then
+		local amount = tonumber(string.sub(message, 4))
+		if type(amount) == "number" then player.GainXp(amount) end
         return false
     end
 	if message == "!auto" then
@@ -252,4 +259,8 @@ function player_onchat(playerID, chatstring)
         return false
     end
 	return true -- Allow other chatter
+end
+
+function player_onuse()
+	--ChatToAll("using")
 end

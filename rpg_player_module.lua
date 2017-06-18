@@ -47,6 +47,8 @@ function player_module.NewPlayer(playerID)
     function self.GainXp(amount)
         currentLine.GainXp(amount)
         hudModule.UpdateXpBar(self)
+        --Check XP needed for next level
+        if self.GetXp() >= self.GetXpToNext() then self.LevelUp() end
     end
 
     function self.GetLevel() return currentLine.GetLevel() end

@@ -55,8 +55,6 @@ function skills_module.FlagThrow(player)
 end
 -- Class Skills
 function skills_module.Scout()
-    local BALLISTIC_ARMOR = 0.75 --25%
-    local EXPLOSIVE_ARMOR = 0.75
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Ballistic Armor", "25% Reduced Damage from Bullets",
@@ -68,6 +66,7 @@ function skills_module.Scout()
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
     function self.BallisticArmor(player, damageinfo)
+        local BALLISTIC_ARMOR = 0.75
         if player.GetClassID() == 1 and player.GetUlt(1) then
             if damageinfo:GetDamageType() == 4098 then
                 damageinfo:ScaleDamage(BALLISTIC_ARMOR)
@@ -76,6 +75,7 @@ function skills_module.Scout()
     end
 
     function self.ExplosiveArmor(player, damageinfo)
+        local EXPLOSIVE_ARMOR = 0.75
         if player.GetClassID() == 1 and player.GetUlt(2) then
             if damageinfo:GetDamageType() == 64 or damageinfo:GetDamageType() == 8 then
                 damageinfo:ScaleDamage(EXPLOSIVE_ARMOR)
@@ -128,8 +128,6 @@ function skills_module.Sniper()
 end
 
 function skills_module.Soldier()
-    local ROCKET_SNARE_TIME = 0.3
-    local SELF_RESISTANCE = 0.20
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Rocket Snare", "Snares a player for 0.3 seconds",
@@ -142,7 +140,7 @@ function skills_module.Soldier()
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
     function self.RocketSnare(player, attacker, damageinfo) -- ult 1
-
+        local ROCKET_SNARE_TIME = 0.3
         if attacker.GetClassID() == 3 and attacker.GetUlt(1) then
             local weapon = damageinfo:GetInflictor():GetClassName()
             if weapon == "ff_projectile_rocket" then
@@ -159,6 +157,7 @@ function skills_module.Soldier()
     end
 
     function self.SelfResistance(player, damageinfo)
+        local SELF_RESISTANCE = 0.20
         if player.GetClassID() == 3 and player.GetUlt(2) then
             damageinfo:ScaleDamage(SELF_RESISTANCE)
         end
@@ -192,7 +191,7 @@ function skills_module.Demoman()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
- --[[ BROKEN
+ --[[ TODO: BROKEN
     function self.DetpackMedic(player, attacker, damageinfo)
         if attacker.GetClassID() == 4 and attacker.GetUlt(2) then
             if damageinfo:GetDamageType() == 320 then

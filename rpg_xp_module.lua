@@ -8,11 +8,7 @@ function xp_module.NewExperienceLine(playerID)
     local xp_to_next = 98
     function self.GetXp() return xp end
     function self.SetXp(int) xp = int end
-    function self.GainXp(amount)
-        xp = xp + amount
-        --Check XP needed for next level
-        if self.GetXp() >= self.GetXpToNext() then self.LevelUp() end
-    end
+    function self.GainXp(amount) xp = xp + amount end
 
     function self.GetXpToNext() return xp_to_next end
     function self.SetXpToNext(int)  xp_to_next = int end
