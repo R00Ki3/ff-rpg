@@ -1,5 +1,3 @@
-
-***
 ### Basic Skills
 **Regeneration:** Adds 5% of base health and armor per level every 7 seconds.
 
