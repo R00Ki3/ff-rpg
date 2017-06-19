@@ -55,19 +55,18 @@ function skills_module.FlagThrow(player)
 end
 -- Class Skills
 function skills_module.Scout()
-    local BALLISTIC_ARMOR = 0.75 --25%
-    local EXPLOSIVE_ARMOR = 0.75
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
             "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
-            "Empty", "Empty"
+            "EMPTY", "EMPTY"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
     function self.BallisticArmor(player, damageinfo)
+        local BALLISTIC_ARMOR = 0.75
         if player.GetClassID() == 1 and player.GetUlt(1) then
             if damageinfo:GetDamageType() == 4098 then
                 damageinfo:ScaleDamage(BALLISTIC_ARMOR)
@@ -76,6 +75,7 @@ function skills_module.Scout()
     end
 
     function self.ExplosiveArmor(player, damageinfo)
+        local EXPLOSIVE_ARMOR = 0.75
         if player.GetClassID() == 1 and player.GetUlt(2) then
             if damageinfo:GetDamageType() == 64 or damageinfo:GetDamageType() == 8 then
                 damageinfo:ScaleDamage(EXPLOSIVE_ARMOR)
@@ -94,7 +94,14 @@ function skills_module.Scout()
             end
         end
     end
-
+    --[[ TODO:BROKEN
+    function self.ConcSupply(player)
+        if player.GetClassID() == 1 and player.GetUlt(4) then
+            local playerID = player.GetPlayer()
+            playerID:AddAmmo(Ammo.kGren2, 1)
+        end
+    end
+    --]]
     return self
 end
 
@@ -112,7 +119,7 @@ function skills_module.Sniper()
     function self.CriticalHit(player, damageinfo)
         if player.GetClassID() == 2 and player.GetUlt(1) then
             if RandomInt(1,5) == 3 then
-                damageinfo.ScaleDamage(2)
+                damageinfo:ScaleDamage(2)
             end
         end
     end
@@ -121,12 +128,10 @@ function skills_module.Sniper()
 end
 
 function skills_module.Soldier()
-    local ROCKET_SNARE_TIME = 0.3
-    local SELF_RESISTANCE = 0.10
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Rocket Snare", "Snares a player for 0.3 seconds",
-            "Self Resistance", "90% Reduced Self Damage",
+            "Self Resistance", "80% Reduced Self Damage",
             "Rocket Science", "Fully Reload Weapons On Kill",
             "Empty", "Empty"
             )
@@ -135,7 +140,7 @@ function skills_module.Soldier()
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
     function self.RocketSnare(player, attacker, damageinfo) -- ult 1
-
+        local ROCKET_SNARE_TIME = 0.3
         if attacker.GetClassID() == 3 and attacker.GetUlt(1) then
             local weapon = damageinfo:GetInflictor():GetClassName()
             if weapon == "ff_projectile_rocket" then
@@ -152,6 +157,7 @@ function skills_module.Soldier()
     end
 
     function self.SelfResistance(player, damageinfo)
+        local SELF_RESISTANCE = 0.20
         if player.GetClassID() == 3 and player.GetUlt(2) then
             damageinfo:ScaleDamage(SELF_RESISTANCE)
         end
@@ -185,6 +191,18 @@ function skills_module.Demoman()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
+ --[[ TODO: BROKEN
+    function self.DetpackMedic(player, attacker, damageinfo)
+        if attacker.GetClassID() == 4 and attacker.GetUlt(2) then
+            if damageinfo:GetDamageType() == 320 then
+                local playerID = player.GetPlayer()
+                damageinfo:ScaleDamage(0)
+                playerID:AddHealth(100)
+                playerID:AddArmor(300)
+            end
+        end
+    end
+    --]]
     return self
 end
 
@@ -204,7 +222,7 @@ function skills_module.Medic()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
-    function self.NaturalHealer(healer, player, damageinfo)
+    function self.NaturalHealer(player, healer, damageinfo)
         if healer.GetClassID() == 5 and healer.GetUlt(1) then
             if damageinfo:GetDamageType() ~= 64 then
                 local playerID = player.GetPlayer()
@@ -232,7 +250,7 @@ function skills_module.Medic()
     end
 
     function self.PoisonAmmo(player, attacker, damageinfo)
-        if attacler.GetClassID() == 5 and attacker.GetUlt(3) then
+        if attacker.GetClassID() == 5 and attacker.GetUlt(3) then
             if damageinfo:GetDamageType() ~= 64 then
                 local playerID = player.GetPlayer()
                 playerID:AddEffect(EF.kGas, 2, 2, 2)
@@ -253,7 +271,7 @@ function skills_module.HwGuy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Enrage", "Damage Increases as Health Decreases to a Max of 2.5X",
-            "Empty", "Empty",
+            "Ammo & Slow Supply", "Gives 1 Slowfield and ammo every 7 Seconds",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -262,7 +280,8 @@ function skills_module.HwGuy()
 
     function self.Enrage(player, damageinfo)
         if player.GetClassID() == 6 and player.GetUlt(1) then
-            local enrage_range = (100 / attacker:GetHealth() * ENRAGE_LIFE_ACTIVE)
+            local playerID = player.GetPlayer()
+            local enrage_range = (100 / playerID:GetHealth() * ENRAGE_LIFE_ACTIVE)
             if enrage_range >= ENRAGE_MAX_MULTIPLIER then
                 damageinfo:ScaleDamage(ENRAGE_MAX_MULTIPLIER)
             elseif(enrage_range <= 1) then
@@ -273,6 +292,13 @@ function skills_module.HwGuy()
         end
     end
 
+    function self.SlowSupply(player)
+        if player.GetClassID() == 6 and player.GetUlt(2) then
+            local playerID = player.GetPlayer()
+            playerID:AddAmmo(Ammo.kGren2, 1)
+            playerID:AddAmmo(Ammo.kShells, 50)
+        end
+    end
     return self
 end
 
@@ -294,7 +320,7 @@ function skills_module.Spy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Teleport Tranq", "Teleport to Enemy On Hit",
-            "Empty", "Empty",
+            "Backstab Berserker", "50/50 Resupply and 5 Second Speed Boost on Backstab",
             "Empty", "Empty",
             "Empty", "Empty"
             )
@@ -302,7 +328,7 @@ function skills_module.Spy()
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
     function self.Teleport(player, attacker, damageinfo)
-        if player.GetClassID() == 8 and player.GetUlt(1) then
+        if attacker.GetClassID() == 8 and attacker.GetUlt(1) then
             local weapon = damageinfo:GetInflictor():GetClassName()
             if weapon == "ff_projectile_dart" then
                 local playerID = player.GetPlayer()
@@ -312,9 +338,22 @@ function skills_module.Spy()
                     playerID:GetOrigin().y,
                     playerID:GetOrigin().z
                 }
-                attackerID:SetOrigin( Vector( origin[1], origin[2], origin[z] + 96 ))
+                attackerID:SetOrigin( Vector( origin[1], origin[2], origin[3] + 96 ))
             end
         end
+    end
+
+    function self.BackstabBerserker(player, damageinfo)
+        if player.GetClassID() == 8 and player.GetUlt(2) then
+            -- Damage type for backstab
+    		if damageinfo:GetDamageType() == 268435456 then
+                local playerID  = player.GetPlayer()
+    			playerID:AddHealth(50)
+    			playerID:AddArmor(50)
+                -- 5 second boost at 1.5x speed
+    			playerID:AddEffect(EF.kSpeedlua2, 5, 5, 1.5)
+    		end
+    	end
     end
     return self
 end

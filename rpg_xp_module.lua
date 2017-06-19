@@ -8,11 +8,7 @@ function xp_module.NewExperienceLine(playerID)
     local xp_to_next = 98
     function self.GetXp() return xp end
     function self.SetXp(int) xp = int end
-    function self.GainXp(amount)
-        xp = xp + amount
-        --Check XP needed for next level
-        if self.GetXp() >= self.GetXpToNext() then self.LevelUp() end
-    end
+    function self.GainXp(amount) xp = xp + amount end
 
     function self.GetXpToNext() return xp_to_next end
     function self.SetXpToNext(int)  xp_to_next = int end
@@ -81,12 +77,13 @@ end
 function xp_module.LevelUp(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
+    local steam_id = playerID.GetSteamID()
 
 	ObjectiveNotice(player, "Level "..level.."!" )
 	BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
 	ChatToPlayer(player,"^5You are now level ^4"..level)
 
-	AddSchedule("level_up", 2, LevelUpDelay, playerID)
+	AddSchedule("level_up"..steam_id, 2, LevelUpDelay, playerID)
 end
 
 function LevelUpDelay(playerID)
