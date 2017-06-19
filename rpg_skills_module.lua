@@ -60,7 +60,7 @@ function skills_module.Scout()
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
             "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
-            "Concussion Supply", "Gives 1 Concussion every 7 Seconds"
+            "EMPTY", "EMPTY"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -94,14 +94,14 @@ function skills_module.Scout()
             end
         end
     end
-
+    --[[ TODO:BROKEN
     function self.ConcSupply(player)
         if player.GetClassID() == 1 and player.GetUlt(4) then
             local playerID = player.GetPlayer()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
-
+    --]]
     return self
 end
 
