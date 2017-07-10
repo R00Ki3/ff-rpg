@@ -6,7 +6,8 @@ function hud_module.UpdateAll(player)
     local class_id = player.GetClassID()
     local current_level = player.GetXp()
     local next_level = player.GetXpToNext()
-
+    local level = player.GetLevel()
+    local skills = player.GetUnusedPoints()
 	if player.GetPlayer():IsAlive() then
         hud_module.HideAll(playerID)
 
@@ -19,12 +20,13 @@ function hud_module.UpdateAll(player)
 		--Level bar
 		AddHudIcon(playerID, "hud_statusbar_256.vtf", "Progress_BG", 164, 462, 128, 16, 0 )
 		AddHudText(playerID, "Progress_text", tostring(math.floor(current_level)).."/"..next_level, 166, 462, 0 )
-		AddHudText(playerID, "Progress_level","Level: "..player.GetLevel().." | Class: ".. class, 166, 450, 0 )
+		AddHudText(playerID, "Progress_level", "Level: "..level.." | Class: ".. class, 166, 450, 0 )
+        AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451, 0 )
 
 		--Skill information
-		AddHudText(playerID, "Progress_regen","+".. 5 * player.GetRegenLevel().."% Regeneration", 293, 469, 0 )
-		AddHudText(playerID, "Progress_resist","+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
-		AddHudText(playerID, "Progress_speed","+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
+		AddHudText(playerID, "Progress_regen", "+".. 5 * player.GetRegenLevel().."% Regeneration", 293, 469, 0 )
+		AddHudText(playerID, "Progress_resist", "+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
+		AddHudText(playerID, "Progress_speed", "+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
 
 		if class_id == 1 or class_id == 5 or class_id == 8 then
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(15 * player.GetFlagThrowLevel()).."% Throw Power", 370, 469, 0 )
@@ -50,6 +52,20 @@ function hud_module.UpdateAll(player)
 		end
 
 	end --  is alive
+end
+function hud_module.UpdateLevel(player)
+    local playerID = player.GetPlayer()
+	local class = player.GetClassName()
+    local level = player.GetLevel()
+    local skills = player.GetUnusedPoints()
+    AddHudText(playerID, "Progress_level","Level: "..level.." | Class: ".. class, 166, 450, 0 )
+    AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451, 0 )
+end
+
+function hud_module.UpdateUnused(player)
+    local playerID = player.GetPlayer()
+    local skills = player.GetUnusedPoints()
+    AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451, 0 )
 end
 function hud_module.UpdateResist(player)
     local playerID = player.GetPlayer()
@@ -101,7 +117,8 @@ function hud_module.HideXpBar(playerID)
 	RemoveHudItem(playerID, "Progress_text")
     RemoveHudItem(playerID, "Progress_bar")
 end
-
+-- Calls on Team/Class switch and death
+    -- Hides all hud elements
 function hud_module.HideAll(playerID)
 	RemoveHudItem(playerID, "Progress_BG")
 	RemoveHudItem(playerID, "Progress_bar")
@@ -115,6 +132,7 @@ function hud_module.HideAll(playerID)
 	RemoveHudItem(playerID, "Progress_ult_2")
 	RemoveHudItem(playerID, "Progress_ult_3")
 	RemoveHudItem(playerID, "Progress_ult_4")
+    RemoveHudItem(playerID, "unused_skills")
 end
 
 return hud_module

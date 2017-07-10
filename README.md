@@ -3,7 +3,7 @@
 
 **Resistance:** Adds 5% reduced damage from all sources per level.
 
-**Speed:** Adds 5% Increased base speed speed per level. (Max speed is 600)
+**Speed:** Adds 5% Increased base speed per level. (Max speed is 600)
 
 **Damage:** Adds 5% increased damage from all sources per level.
 

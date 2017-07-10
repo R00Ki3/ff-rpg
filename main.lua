@@ -16,7 +16,14 @@ functionList.baseflag = {
 	dropitemcmd = baseflag.dropitemcmd
 }
 
-PrecacheSound("Misc.Unagi")
+function precache()
+	PrecacheSound("Misc.Unagi")
+	PrecacheSound("Player.Scream")
+	PrecacheSound("misc.unagi_spatial")
+	PrecacheSound("ff_waterpolo.psychotic_goalie")
+	PrecacheModel("models/items/ball/ball.mdl")
+	PrecacheModel("models/items/ball/ball2.mdl")
+end
 
 local function regen_tick()
     for _, player in pairs(playerList) do
@@ -101,7 +108,7 @@ function player_ondamage(playerID, damageinfo)
 		local attacker = playerList[ID(player)]
 		--Trigger on enemy
 	    if not (victim.GetTeamID() == attacker.GetTeamID()) then
-	        -- don't allow DETPACKS to gain this bonus
+	        -- don't allow DETPACKS to gain this bonus because of their insane damage
 	        if damageinfo:GetDamageType() ~= 320 then
 	            local xp_amount = damageinfo:GetDamage() * 0.30
 	            attacker.GainXp(xp_amount)
@@ -109,28 +116,31 @@ function player_ondamage(playerID, damageinfo)
 			skillsModule.Soldier().RocketSnare(victim, attacker, damageinfo)
 			skillsModule.Scout().Reflect(victim, attacker, damageinfo)
 			skillsModule.Spy().Teleport(victim, attacker, damageinfo)
-			skillsModule.Spy().BackstabBerserker(attacker, damageinfo)
 			skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
-			skillsModule.Sniper().CriticalHit(victim, attacker, damageinfo)
+			skillsModule.Sniper().CriticalHit(attacker, damageinfo)
 
 		--Trigger on friendly
 	    elseif victim.GetTeamID() == attacker.GetTeamID() then
 			skillsModule.Soldier().SelfResistance(victim, damageinfo)
 			skillsModule.Medic().NaturalHealer(victim, attacker, damageinfo)
 		--Triggers everyone
-		else
+		end
 		    skillsModule.Resistance(victim, damageinfo)
 		    skillsModule.IncreaseDamage(attacker, damageinfo)
 			skillsModule.Scout().BallisticArmor(victim, damageinfo)
 			skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
 			skillsModule.HwGuy().Enrage(attacker, damageinfo)
 			skillsModule.Medic().Momentum(attacker, damageinfo)
-		end
 	end
 end
 
-function buildable_ondamage()
-	--ChatToAll("Damage")
+function buildable_ondamage(PlayerID, damageinfo)
+--	ChatToAll("Damage")
+end
+
+function player_onkill()
+	--ChatToAll("KILLER")
+	return true
 end
 
 function player_killed(playerID, damageinfo)
@@ -154,14 +164,19 @@ function player_killed(playerID, damageinfo)
 		else
             local xp_amount = 20 + 10 * kill_count
 			attacker.GainXp(xp_amount)
+
 		end
         attacker.AddToKillCount()
+
 		skillsModule.Soldier().RocketScience(attacker)
+		skillsModule.Spy().GoodDisguise(victim, attacker)
+		skillsModule.Spy().WeaponThief(victim, attacker, damageinfo)
+		skillsModule.Spy().BackstabBerserker(attacker, damageinfo)
 	end
 end
 
 function buildable_killed()
-	--ChatToAll("Killed")
+--	ChatToAll("Killed")
 end
 
 function player_onconc(player, playerID)
@@ -223,9 +238,11 @@ function player_onmenuselect(playerID, menu_name, selection)
 		elseif selection == 9 then
             player.LevelUpRoleSkill()
 		end
+		player.DecUnusedSkills()
 	elseif menu_name =="LEVEL_UP_ULT" then
 		player.LevelUlt(selection - 5)
 	end
+
 end
 
 function player_onchat(playerID, chatstring)
@@ -235,10 +252,10 @@ function player_onchat(playerID, chatstring)
     ]]
 
 	local player = playerList[ID(playerID)]
-
+	local currentPlayer = CastToPlayer(playerID)
 	-- string.gsub call removes all control characters (newlines, return carriages, etc)
 	-- string.sub call removes the playername: part of the string, leaving just the message
-	local message = string.sub( string.gsub( chatstring, "%c", "" ), string.len(player.GetPlayer():GetName())+3 )
+	local message = string.sub( string.gsub( chatstring, "%c", "" ), string.len(currentPlayer:GetName())+3 )
 	if message == "!lvlup" then
 		player.LevelUp()
 		return false
@@ -258,7 +275,41 @@ function player_onchat(playerID, chatstring)
 		player.LevelUp()
         return false
     end
+
+
+	if message == "!reset" then
+        player.ResetSkills()
+        return false
+    end
+
+	if message == "!spend" then
+		player.SpendPoints()
+		return false
+	end
+	
 	return true -- Allow other chatter
+end
+
+function flaginfo()
+	--ChatToAll("flaginfo") --when using cvar 'flaginfo'
+end
+
+function player_onprimegren1(player)
+	--ChatToAll("PRIME1 ")
+end
+
+function player_onprimegren2(player)
+	--ChatToAll("PRIME2 ")
+end
+
+function player_onthrowgren2(player, time)
+	--ChatToAll("throw2 ".. time)
+	return true
+end
+
+function player_onthrowgren1(player, time)
+	--ChatToAll("throw1 "..time)
+	return true
 end
 
 function player_onuse()

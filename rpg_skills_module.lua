@@ -321,8 +321,8 @@ function skills_module.Spy()
     local thisUlt = utilModule.NewUlt(
             "Teleport Tranq", "Teleport to Enemy On Hit",
             "Backstab Berserker", "50/50 Resupply and 5 Second Speed Boost on Backstab",
-            "Empty", "Empty",
-            "Empty", "Empty"
+            "Weapon Thief", "",
+            "Good Disguise", ""
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -346,7 +346,8 @@ function skills_module.Spy()
     function self.BackstabBerserker(player, damageinfo)
         if player.GetClassID() == 8 and player.GetUlt(2) then
             -- Damage type for backstab
-    		if damageinfo:GetDamageType() == 268435456 then
+            local weapon = damageinfo:GetInflictor():GetClassName()
+            if weapon == "backstab" then
                 local playerID  = player.GetPlayer()
     			playerID:AddHealth(50)
     			playerID:AddArmor(50)
@@ -355,6 +356,28 @@ function skills_module.Spy()
     		end
     	end
     end
+
+    function self.WeaponThief(player, attacker, damageinfo)
+        if attacker.GetClassID() == 8 and attacker.GetUlt(3) then
+            local weapon = damageinfo:GetInflictor():GetClassName()
+            if weapon == "backstab" then
+                local playerID = player.GetPlayer()
+                local attackerID = attacker.GetPlayer()
+                local weapon_type = playerID:GetActiveWeaponName()
+                attackerID:GiveWeapon(weapon_type, true)
+            end
+        end
+    end
+
+    function self.GoodDisguise(player, attacker)
+        if attacker.GetClassID() == 8 and attacker.GetUlt(4) then
+            local class_id = player.GetClassID()
+            local team_id = player.GetTeamID()
+            local playerID = attacker.GetPlayer()
+            playerID:SetDisguise(team_id, class_id, true)
+        end
+    end
+
     return self
 end
 
