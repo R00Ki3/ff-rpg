@@ -1,3 +1,8 @@
+### Chat Commands
+  **!reset**  Resets all skill points allowing them to be respent.
+  
+  **!spend** Spends avaliable skill points.
+  
 ### Basic Skills
 **Regeneration:** Adds 5% of base health and armor per level every 7 seconds.
 
