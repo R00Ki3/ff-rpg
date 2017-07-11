@@ -346,8 +346,9 @@ function skills_module.Spy()
     function self.BackstabBerserker(player, damageinfo)
         if player.GetClassID() == 8 and player.GetUlt(2) then
             -- Damage type for backstab
-            local weapon = damageinfo:GetInflictor():GetClassName()
-            if weapon == "backstab" then
+            --local weapon = damageinfo:GetInflictor():GetClassName()
+            local weapon = damageinfo:GetDamageType()
+            if weapon == 268435456 then
                 local playerID  = player.GetPlayer()
     			playerID:AddHealth(50)
     			playerID:AddArmor(50)
@@ -360,7 +361,7 @@ function skills_module.Spy()
     function self.WeaponThief(player, attacker, damageinfo)
         if attacker.GetClassID() == 8 and attacker.GetUlt(3) then
             local weapon = damageinfo:GetInflictor():GetClassName()
-            if weapon == "backstab" then
+            if weapon == "ff_weapon_knife" then
                 local playerID = player.GetPlayer()
                 local attackerID = attacker.GetPlayer()
                 local weapon_type = playerID:GetActiveWeaponName()

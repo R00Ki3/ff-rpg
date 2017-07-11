@@ -118,7 +118,7 @@ function player_ondamage(playerID, damageinfo)
 			skillsModule.Spy().Teleport(victim, attacker, damageinfo)
 			skillsModule.Medic().PoisonAmmo(victim, attacker, damageinfo)
 			skillsModule.Sniper().CriticalHit(attacker, damageinfo)
-
+			skillsModule.Spy().BackstabBerserker(attacker, damageinfo)
 		--Trigger on friendly
 	    elseif victim.GetTeamID() == attacker.GetTeamID() then
 			skillsModule.Soldier().SelfResistance(victim, damageinfo)
@@ -131,6 +131,7 @@ function player_ondamage(playerID, damageinfo)
 			skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
 			skillsModule.HwGuy().Enrage(attacker, damageinfo)
 			skillsModule.Medic().Momentum(attacker, damageinfo)
+
 	end
 end
 
@@ -167,11 +168,9 @@ function player_killed(playerID, damageinfo)
 
 		end
         attacker.AddToKillCount()
-
+		skillsModule.Spy().WeaponThief(victim, attacker, damageinfo)
 		skillsModule.Soldier().RocketScience(attacker)
 		skillsModule.Spy().GoodDisguise(victim, attacker)
-		skillsModule.Spy().WeaponThief(victim, attacker, damageinfo)
-		skillsModule.Spy().BackstabBerserker(attacker, damageinfo)
 	end
 end
 
@@ -286,7 +285,7 @@ function player_onchat(playerID, chatstring)
 		player.SpendPoints()
 		return false
 	end
-	
+
 	return true -- Allow other chatter
 end
 

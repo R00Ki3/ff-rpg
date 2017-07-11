@@ -56,7 +56,7 @@ function player_module.NewPlayer(playerID)
     function self.LevelUp()
             currentLine.IncUnusedSkills()
             currentLine.LevelUp()
-            hudModule.UpdateLevel(self)
+            hudModule.UpdateAll(self)
     end
 
     function self.DecUnusedSkills()
@@ -72,10 +72,10 @@ function player_module.NewPlayer(playerID)
     function self.SpendPoints()
         if self.GetUnusedPoints() > 0 then
             currentLine.SpendPoints()
-            hudModule.UpdateLevel(self)
         else
             ChatToPlayer(player, "^5You don't have any points to spend!")
         end
+        hudModule.UpdateLevel(self)
     end
     -- Calls on player chat command !reset
         -- Resets all skill points that are allowed to be respent
