@@ -30,6 +30,7 @@ local function regen_tick()
         skillsModule.Regeneration(player)
 		--skillsModule.Scout().ConcSupply(player)
 		skillsModule.HwGuy().SlowSupply(player)
+		skillsModule.Scout().ConcSupply(player)
     end
 end
 

@@ -59,8 +59,8 @@ function skills_module.Scout()
     local thisUlt = utilModule.NewUlt(
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
-            "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
-            "EMPTY", "EMPTY"
+            "Reflect Damage", "Reflects 10% Damage to the Attacker",
+            "Conc Supply", "Give a Conc every 7 Seconds"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -94,14 +94,14 @@ function skills_module.Scout()
             end
         end
     end
-    --[[ TODO:BROKEN
+
     function self.ConcSupply(player)
         if player.GetClassID() == 1 and player.GetUlt(4) then
             local playerID = player.GetPlayer()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
-    --]]
+
     return self
 end
 
@@ -191,7 +191,7 @@ function skills_module.Demoman()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
- --[[ TODO: BROKEN
+
     function self.DetpackMedic(player, attacker, damageinfo)
         if attacker.GetClassID() == 4 and attacker.GetUlt(2) then
             if damageinfo:GetDamageType() == 320 then
@@ -320,9 +320,9 @@ function skills_module.Spy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Teleport Tranq", "Teleport to Enemy On Hit",
-            "Backstab Berserker", "50/50 Resupply and 5 Second Speed Boost on Backstab",
-            "Weapon Thief", "",
-            "Good Disguise", ""
+            "Backstab Berserker", "Resupply and Speed Boost on Backstab",
+            "Weapon Thief", "Steals Weapon on Knife kill",
+            "Good Disguise", "Steals Disguise on kill"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
