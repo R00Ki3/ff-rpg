@@ -135,8 +135,17 @@ function player_ondamage(playerID, damageinfo)
 	end
 end
 
-function buildable_ondamage(PlayerID, damageinfo)
---	ChatToAll("Damage")
+function buildable_ondamage(buildableID, damageinfo)
+	if not damageinfo then return end
+	local player = damageinfo:GetAttacker()
+	if not player then return end
+
+	local victim = playerList[ID(buildableID:GetOwner())]
+	local attacker = playerList[ID(player)]
+	if not (victim.GetTeamID() == attacker.GetTeamID()) then
+		local xp_amount = damageinfo:GetDamage() * 0.30
+		attacker.GainXp(xp_amount)
+	end
 end
 
 function player_onkill()
@@ -174,8 +183,16 @@ function player_killed(playerID, damageinfo)
 	end
 end
 
-function buildable_killed()
---	ChatToAll("Killed")
+function buildable_killed(buildableID, damageinfo)
+	if not damageinfo then return end
+	local player = damageinfo:GetAttacker()
+	if not player then return end
+
+	local victim = playerList[ID(buildableID:GetOwner())]
+	local attacker = playerList[ID(player)]
+	if not (victim.GetTeamID() == attacker.GetTeamID()) then
+		attacker.GainXp(20)
+	end
 end
 
 function player_onconc(player, playerID)
