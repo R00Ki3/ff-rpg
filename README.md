@@ -1,3 +1,10 @@
+### Installation
+Put all files into your servers **\FortressForever\maps\globalscripts** directory.
+
+Set the server cvar sv_globalluascript to "game_rules".
+
+ff_restartround or restart the map to load in the new files.
+
 ### Chat Commands
   **!reset**  Resets all skill points allowing them to be respent.
   
