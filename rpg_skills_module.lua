@@ -60,7 +60,7 @@ function skills_module.Scout()
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
             "Reflect Damage", "Reflects 10% Damage to the Attacker",
-            "Conc Supply", "Give a Conc every 7 Seconds"
+            "Conc Supply", "Get a Conc every 7 Seconds"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -214,7 +214,7 @@ function skills_module.Medic()
     local MOMENTUM_MULTIPLIER = 0.32
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Natural Healer", "Heal Teammates On Hit and On Concussion",
+            "Natural Healer", "Heal Teammates On Hit and Concussion",
             "Momentum", "Increased Damage at Increased Speeds",
             "Poisoned Ammunition", "3 Second Gas Effect On Hit",
             "Empty", "Empty"
@@ -305,7 +305,7 @@ end
 function skills_module.Pyro()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Limb Tosser", "Toss your friends for bonus damage!",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -313,6 +313,29 @@ function skills_module.Pyro()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
+    function self.LimbTosser(player)
+        if player.GetClassID() == 7 and player.GetUlt(1) then
+            local gren_col = Collection()
+            local model = utilModule.RandomLimb()
+            local playerID = player.GetPlayer()
+                --Gets all grenades in a 64 unit radius of the player and changes the model
+            gren_col:GetInSphere(playerID, 64, {  CF.kGrenades, CF.kTraceBlockWalls } )
+        	for temp in gren_col.items do
+                --if the model is a head make it scream
+                if model:find("head") ~= nil then
+                    temp:EmitSound("Player.Scream")
+                end
+        		temp:SetModel(model)
+        	end
+        end
+    end
+
+    function self.LimbTosserDamage(player, damageinfo)
+        if player.GetClassID() == 7 and player.GetUlt(1) then
+            damageinfo:ScaleDamage(1.10) -- 10% bonus
+        end
+
+    end
     return self
 end
 

@@ -23,6 +23,8 @@ function precache()
 	PrecacheSound("ff_waterpolo.psychotic_goalie")
 	PrecacheModel("models/items/ball/ball.mdl")
 	PrecacheModel("models/items/ball/ball2.mdl")
+	--precache gib models 1 to 8
+	for i=1,8 do PrecacheModel("models/gibs/gib"..i..".mdl")end
 end
 
 local function regen_tick()
@@ -132,7 +134,7 @@ function player_ondamage(playerID, damageinfo)
 			skillsModule.Scout().ExplosiveArmor(victim, damageinfo)
 			skillsModule.HwGuy().Enrage(attacker, damageinfo)
 			skillsModule.Medic().Momentum(attacker, damageinfo)
-
+			skillsModule.Pyro().LimbTosserDamage(attacker, damageinfo)
 	end
 end
 
@@ -299,6 +301,10 @@ function player_onchat(playerID, chatstring)
         return false
     end
 
+	if message == "y" then
+
+	end
+
 	if message == "!spend" then
 		player.SpendPoints()
 		return false
@@ -311,22 +317,31 @@ function flaginfo()
 	--ChatToAll("flaginfo") --when using cvar 'flaginfo'
 end
 
-function player_onprimegren1(player)
+function player_onprimegren1(playerID)
 	--ChatToAll("PRIME1 ")
 end
 
-function player_onprimegren2(player)
+function player_onprimegren2(playerID)
 	--ChatToAll("PRIME2 ")
 end
 
-function player_onthrowgren2(player, time)
+function player_onthrowgren2(playerID, time)
 	--ChatToAll("throw2 ".. time)
+	local player = playerList[ID(playerID)]
+	AddSchedule("screamer2", 0, LimbTosserRelay, player )
 	return true
 end
 
-function player_onthrowgren1(player, time)
+function player_onthrowgren1(playerID, time)
 	--ChatToAll("throw1 "..time)
+	local player = playerList[ID(playerID)]
+	AddSchedule("screamer", 0, LimbTosserRelay, player )
 	return true
+end
+
+-- Required for limbtosser pyro skill
+function LimbTosserRelay(player)
+	skillsModule.Pyro().LimbTosser(player)
 end
 
 function player_onuse()

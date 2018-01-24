@@ -12,7 +12,6 @@ function hud_module.UpdateAll(player)
     local hud_color = CustomColor(155, 155, 155, 100)
     local hud_border_color = CustomColor(195, 195, 195, 255)
     local hud_bar_color = CustomColor(20, 150, 20, 200)
-    local hud_border = CustomBorder(hud_border_color, 1)
 
 	if player.GetPlayer():IsAlive() then
         hud_module.HideAll(playerID)
@@ -20,11 +19,12 @@ function hud_module.UpdateAll(player)
 		local max_width = 124
 		local bar_width = current_level	* max_width / next_level
 		-- Hide if at zero XP
-        if current_level == 0 then RemoveHudItem(playerID, "hud_bar") end
-        
+
+
 		--Level bar
-        AddHudBox(playerID, "hud_box", 164, 462, 128, 16, hud_color, hud_border, 16, 0)
+        AddHudBox(playerID, "hud_box", 164, 462, 128, 16, hud_color, hud_border_color, 16, 0)
         AddHudBox(playerID, "hud_bar", 165, 463, bar_width, 14, hud_bar_color, 16, 0)
+        if current_level == 0 then RemoveHudItem(playerID, "hud_bar") end
 
 		AddHudText(playerID, "Progress_text", tostring(math.floor(current_level)).."/"..next_level, 166, 462, 0 )
 		AddHudText(playerID, "Progress_level", "Level: "..level.." | Class: ".. class, 166, 450, 0 )
