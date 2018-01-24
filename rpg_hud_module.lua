@@ -6,6 +6,12 @@ function hud_module.UpdateAll(player)
     local class_id = player.GetClassID()
     local current_level = player.GetXp()
     local next_level = player.GetXpToNext()
+    local level = player.GetLevel()
+    local skills = player.GetUnusedPoints()
+
+    local hud_color = CustomColor(155, 155, 155, 100)
+    local hud_border_color = CustomColor(195, 195, 195, 255)
+    local hud_bar_color = CustomColor(20, 150, 20, 200)
 
 	if player.GetPlayer():IsAlive() then
         hud_module.HideAll(playerID)
@@ -13,18 +19,21 @@ function hud_module.UpdateAll(player)
 		local max_width = 124
 		local bar_width = current_level	* max_width / next_level
 		-- Hide if at zero XP
-		if current_level ~= 0 then
-			AddHudIcon(playerID, "hud_statusbar_purple.vtf", "Progress_bar", 166, 462, bar_width, 16, 0 )
-		end
+
+
 		--Level bar
-		AddHudIcon(playerID, "hud_statusbar_256.vtf", "Progress_BG", 164, 462, 128, 16, 0 )
+        AddHudBox(playerID, "hud_box", 164, 462, 128, 16, hud_color, hud_border_color, 16, 0)
+        AddHudBox(playerID, "hud_bar", 165, 463, bar_width, 14, hud_bar_color, 16, 0)
+        if current_level == 0 then RemoveHudItem(playerID, "hud_bar") end
+
 		AddHudText(playerID, "Progress_text", tostring(math.floor(current_level)).."/"..next_level, 166, 462, 0 )
-		AddHudText(playerID, "Progress_level","Level: "..player.GetLevel().." | Class: ".. class, 166, 450, 0 )
+		AddHudText(playerID, "Progress_level", "Level: "..level.." | Class: ".. class, 166, 450, 0 )
+        AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451)
 
 		--Skill information
-		AddHudText(playerID, "Progress_regen","+".. 5 * player.GetRegenLevel().."% Regeneration", 293, 469, 0 )
-		AddHudText(playerID, "Progress_resist","+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
-		AddHudText(playerID, "Progress_speed","+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
+		AddHudText(playerID, "Progress_regen", "+".. 5 * player.GetRegenLevel().."% Regeneration", 293, 469, 0 )
+		AddHudText(playerID, "Progress_resist", "+"..tostring(5 * player.GetResistLevel()).."% Resistance", 293, 461, 0 )
+		AddHudText(playerID, "Progress_speed", "+"..tostring(5 * player.GetSpeedLevel()).."% Speed", 370, 461, 0 )
 
 		if class_id == 1 or class_id == 5 or class_id == 8 then
 			AddHudText(playerID, "Progress_o_or_d","+"..tostring(15 * player.GetFlagThrowLevel()).."% Throw Power", 370, 469, 0 )
@@ -50,6 +59,20 @@ function hud_module.UpdateAll(player)
 		end
 
 	end --  is alive
+end
+function hud_module.UpdateLevel(player)
+    local playerID = player.GetPlayer()
+	local class = player.GetClassName()
+    local level = player.GetLevel()
+    local skills = player.GetUnusedPoints()
+    AddHudText(playerID, "Progress_level","Level: "..level.." | Class: ".. class, 166, 450, 0 )
+    AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451, 0 )
+end
+
+function hud_module.UpdateUnused(player)
+    local playerID = player.GetPlayer()
+    local skills = player.GetUnusedPoints()
+    AddHudText(playerID, "unused_skills", "Skill Points: "..skills, 293, 451, 0 )
 end
 function hud_module.UpdateResist(player)
     local playerID = player.GetPlayer()
@@ -87,12 +110,12 @@ function hud_module.UpdateXpBar(player)
     local current_level = player.GetXp()
     local next_level = player.GetXpToNext()
     local level_xp = tostring(math.floor(current_level))
+    local hud_bar_color = CustomColor(20, 150, 20, 200)
 
     local max_width = 124
 	local bar_width = current_level	* max_width / next_level
 
-    --hud_module.HideXpBar(playerID)
-    AddHudIcon(playerID, "hud_statusbar_purple.vtf", "Progress_bar", 166, 462, bar_width, 16, 0 )
+    AddHudBox(playerID,"hud_bar", 165, 463, bar_width, 14, hud_bar_color, 16, 0)
     AddHudText(playerID, "Progress_text", level_xp .."/"..next_level, 166, 462, 0 )
 end
 
@@ -101,10 +124,11 @@ function hud_module.HideXpBar(playerID)
 	RemoveHudItem(playerID, "Progress_text")
     RemoveHudItem(playerID, "Progress_bar")
 end
-
+-- Calls on Team/Class switch and death
+    -- Hides all hud elements
 function hud_module.HideAll(playerID)
-	RemoveHudItem(playerID, "Progress_BG")
-	RemoveHudItem(playerID, "Progress_bar")
+	RemoveHudItem(playerID, "hud_box")
+	RemoveHudItem(playerID, "hud_bar")
 	RemoveHudItem(playerID, "Progress_text")
 	RemoveHudItem(playerID, "Progress_level")
 	RemoveHudItem(playerID, "Progress_regen")
@@ -115,6 +139,7 @@ function hud_module.HideAll(playerID)
 	RemoveHudItem(playerID, "Progress_ult_2")
 	RemoveHudItem(playerID, "Progress_ult_3")
 	RemoveHudItem(playerID, "Progress_ult_4")
+    RemoveHudItem(playerID, "unused_skills")
 end
 
 return hud_module

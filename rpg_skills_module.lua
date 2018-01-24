@@ -59,8 +59,8 @@ function skills_module.Scout()
     local thisUlt = utilModule.NewUlt(
             "Ballistic Armor", "25% Reduced Damage from Bullets",
             "Explosive Armor", "25% Reduced Damage from Explosions",
-            "Reflect Damage", "Reflects 10% Damage Back at the Attacker",
-            "EMPTY", "EMPTY"
+            "Reflect Damage", "Reflects 10% Damage to the Attacker",
+            "Conc Supply", "Get a Conc every 7 Seconds"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -94,14 +94,14 @@ function skills_module.Scout()
             end
         end
     end
-    --[[ TODO:BROKEN
+
     function self.ConcSupply(player)
         if player.GetClassID() == 1 and player.GetUlt(4) then
             local playerID = player.GetPlayer()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
-    --]]
+
     return self
 end
 
@@ -191,7 +191,7 @@ function skills_module.Demoman()
             playerID:AddAmmo(Ammo.kGren2, 1)
         end
     end
- --[[ TODO: BROKEN
+
     function self.DetpackMedic(player, attacker, damageinfo)
         if attacker.GetClassID() == 4 and attacker.GetUlt(2) then
             if damageinfo:GetDamageType() == 320 then
@@ -214,7 +214,7 @@ function skills_module.Medic()
     local MOMENTUM_MULTIPLIER = 0.32
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Natural Healer", "Heal Teammates On Hit and On Concussion",
+            "Natural Healer", "Heal Teammates On Hit and Concussion",
             "Momentum", "Increased Damage at Increased Speeds",
             "Poisoned Ammunition", "3 Second Gas Effect On Hit",
             "Empty", "Empty"
@@ -305,7 +305,7 @@ end
 function skills_module.Pyro()
     local self = {}
     local thisUlt = utilModule.NewUlt(
-            "Empty", "Empty",
+            "Limb Tosser", "Toss your friends for bonus damage!",
             "Empty", "Empty",
             "Empty", "Empty",
             "Empty", "Empty"
@@ -313,6 +313,29 @@ function skills_module.Pyro()
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
 
+    function self.LimbTosser(player)
+        if player.GetClassID() == 7 and player.GetUlt(1) then
+            local gren_col = Collection()
+            local model = utilModule.RandomLimb()
+            local playerID = player.GetPlayer()
+                --Gets all grenades in a 64 unit radius of the player and changes the model
+            gren_col:GetInSphere(playerID, 64, {  CF.kGrenades, CF.kTraceBlockWalls } )
+        	for temp in gren_col.items do
+                --if the model is a head make it scream
+                if model:find("head") ~= nil then
+                    temp:EmitSound("Player.Scream")
+                end
+        		temp:SetModel(model)
+        	end
+        end
+    end
+
+    function self.LimbTosserDamage(player, damageinfo)
+        if player.GetClassID() == 7 and player.GetUlt(1) then
+            damageinfo:ScaleDamage(1.10) -- 10% bonus
+        end
+
+    end
     return self
 end
 
@@ -320,9 +343,9 @@ function skills_module.Spy()
     local self = {}
     local thisUlt = utilModule.NewUlt(
             "Teleport Tranq", "Teleport to Enemy On Hit",
-            "Backstab Berserker", "50/50 Resupply and 5 Second Speed Boost on Backstab",
-            "Empty", "Empty",
-            "Empty", "Empty"
+            "Backstab Berserker", "Resupply and Speed Boost on Backstab",
+            "Weapon Thief", "Steals Weapon on Knife kill",
+            "Good Disguise", "Steals Disguise on kill"
             )
     function self.GetUltName(int) return thisUlt.GetUltName(int) end
     function self.GetUltDesc(int) return thisUlt.GetUltDesc(int) end
@@ -346,7 +369,9 @@ function skills_module.Spy()
     function self.BackstabBerserker(player, damageinfo)
         if player.GetClassID() == 8 and player.GetUlt(2) then
             -- Damage type for backstab
-    		if damageinfo:GetDamageType() == 268435456 then
+            --local weapon = damageinfo:GetInflictor():GetClassName()
+            local weapon = damageinfo:GetDamageType()
+            if weapon == 268435456 then
                 local playerID  = player.GetPlayer()
     			playerID:AddHealth(50)
     			playerID:AddArmor(50)
@@ -355,6 +380,28 @@ function skills_module.Spy()
     		end
     	end
     end
+
+    function self.WeaponThief(player, attacker, damageinfo)
+        if attacker.GetClassID() == 8 and attacker.GetUlt(3) then
+            local weapon = damageinfo:GetInflictor():GetClassName()
+            if weapon == "ff_weapon_knife" then
+                local playerID = player.GetPlayer()
+                local attackerID = attacker.GetPlayer()
+                local weapon_type = playerID:GetActiveWeaponName()
+                attackerID:GiveWeapon(weapon_type, true)
+            end
+        end
+    end
+
+    function self.GoodDisguise(player, attacker)
+        if attacker.GetClassID() == 8 and attacker.GetUlt(4) then
+            local class_id = player.GetClassID()
+            local team_id = player.GetTeamID()
+            local playerID = attacker.GetPlayer()
+            playerID:SetDisguise(team_id, class_id, true)
+        end
+    end
+
     return self
 end
 

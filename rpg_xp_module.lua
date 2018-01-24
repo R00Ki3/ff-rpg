@@ -20,6 +20,7 @@ function xp_module.NewExperienceLine(playerID)
         level = level + 1
         if level == 6 or level == 11 or level == 18 then
             playerID.SetAllowUlt(true)
+            self.IncUnusedUlts()
         elseif level > 18 then return end
         xp =  xp % xp_to_next -- Keep leftover xp on lvel
         local toFloor = math.floor
@@ -27,6 +28,35 @@ function xp_module.NewExperienceLine(playerID)
         xp_module.LevelUp(playerID)
     end
 
+
+    local unused_skills = 0
+    function self.GetUnusedSkills() return unused_skills end
+    function self.SetUnusedSkills(int) unused_skills = int end
+    function self.IncUnusedSkills() unused_skills = unused_skills + 1 end
+    function self.DecUnusedSkills()
+        if unused_skills > 0 then
+            unused_skills = unused_skills - 1
+        end
+    end
+
+    local unused_ults = 0
+    function self.GetUnusedUlts() return unused_ults end
+    function self.IncUnusedUlts() unused_ults = unused_ults + 1 end
+    function self.DecUnusedUlts()
+        if unused_ults > 0 then
+            unused_ults = unused_ults - 1
+        end
+    end
+
+    function self.GetUnusedPoints() return unused_ults + unused_skills end
+
+    function self.SpendPoints()
+        if self.GetUnusedUlts() > 0 then
+            playerID.SetAllowUlt(true)
+            self.DecUnusedUlts()
+        end
+        LevelUpDelay(playerID)
+    end
     --Basic Skills
     local regen_level = 0
     function self.GetRegenLevel() return regen_level end
@@ -71,6 +101,20 @@ function xp_module.NewExperienceLine(playerID)
 		playerID.SetAllowUlt(false)
     end
 
+    function self.ResetSkills()
+        local player = playerID.GetPlayer()
+        if level >= 6 then self.IncUnusedUlts() end
+        if level >= 11 then self.IncUnusedUlts() end
+        if level >= 18 then self.IncUnusedUlts() end
+        unused_skills = level - self.GetUnusedUlts() -  1
+        damage_level = 0
+        throw_level = 0
+        speed_level = 0
+        resistance_level = 0
+        regen_level = 0
+        ult = { false, false, false, false }
+    end
+
     return self
 end
 
@@ -78,6 +122,9 @@ function xp_module.LevelUp(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
     local steam_id = playerID.GetSteamID()
+
+    --Because everyone loves points, right?
+    player:AddFortPoints(100 * level, "Leveling up!")
 
 	ObjectiveNotice(player, "Level "..level.."!" )
 	BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
@@ -89,9 +136,6 @@ end
 function LevelUpDelay(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
-
-		--Because everyone loves points, right?
-	player:AddFortPoints(100 * level, "Leveling up!")
 
 	DestroyMenu( "LEVEL_UP" )
     DestroyMenu( "LEVEL_UP_ULT" )

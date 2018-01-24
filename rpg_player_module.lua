@@ -54,10 +54,40 @@ function player_module.NewPlayer(playerID)
     function self.GetLevel() return currentLine.GetLevel() end
     function self.SetLevel(int) currentLine.SetLevel(int)  end
     function self.LevelUp()
-        currentLine.LevelUp()
-        hudModule.UpdateAll(self)
+            currentLine.IncUnusedSkills()
+            currentLine.LevelUp()
+            hudModule.UpdateAll(self)
+    end
+
+    function self.DecUnusedSkills()
+        currentLine.DecUnusedSkills()
+        hudModule.UpdateUnused(self)
+    end
+
+    function self.GetUnusedPoints() return currentLine.GetUnusedPoints() end
+
+    -- Calls on player chat command !spend
+        --If player has a skill point avaliable they can add it ino a new skill
+        --If a player is over level 6, 11, or 18 they will get ult skills to spend
+    function self.SpendPoints()
+        if self.GetUnusedPoints() > 0 then
+            currentLine.SpendPoints()
+        else
+            ChatToPlayer(player, "^5You don't have any points to spend!")
+        end
+        hudModule.UpdateLevel(self)
+    end
+    -- Calls on player chat command !reset
+        -- Resets all skill points that are allowed to be respent
+    function self.ResetSkills()
+         LogLuaEvent(player:GetId(), 0, "reset_skills", "level", ""..self.GetLevel())
+         ChatToPlayer(player, "^5You have ^2!reset ^5all skills!")
+         ChatToPlayer(player, "^5Type ^4!spend ^5to reuse your points!")
+         currentLine.ResetSkills()
+         hudModule.UpdateAll(self)
      end
 
+    -- Allows use of the !auto command for automatic skill selection
     local auto_level = false
     function self.GetAutoLevel() return auto_level end
     function self.ToggleAutoLevel() auto_level = not auto_level end
@@ -69,6 +99,8 @@ function player_module.NewPlayer(playerID)
     function self.IsAllowUlt() return allow_ult end
     function self.SetAllowUlt(boolean) allow_ult = boolean end
 
+    -- Calls on flag touch
+    -- Allows exp gain only on the first flag touch per life
     local flag_touched = false
     function self.IsFlagTouched() return flag_touched end
     function self.SetFlagTouched(boolean) flag_touched = boolean end
@@ -135,6 +167,7 @@ function player_module.NewPlayer(playerID)
         ChatToPlayer(player, "^5You Selected^2 5% Increased Damage")
         hudModule.UpdateDamage(self)
     end
+
     function self.LevelUpRoleSkill()
         -- Class is offensive scout(1), medic(5) or spy(8)
         if class_id == 1 or class_id == 5 or class_id == 8 then
@@ -143,6 +176,7 @@ function player_module.NewPlayer(playerID)
             self.LevelUpDamage()
         end
     end
+
     -- Ultimate Skills
     function self.GetUltName(int) return currentUlt.GetUltName(int) end
     function self.GetUltDesc(int) return currentUlt.GetUltDesc(int) end
@@ -152,15 +186,20 @@ function player_module.NewPlayer(playerID)
         currentLine.LevelUlt(int)
         LogLuaEvent(player:GetId(), 0, "add_skill", "ult_name", msg, "level", ""..self.GetLevel())
         ChatToPlayer(player, "^5You Selected^2 "..msg)
+        currentLine.DecUnusedUlts()
         --TODO: change update all to only update current skill
         hudModule.UpdateAll(self)
     end
 
+    -- Kill Counter for adding of addional exp for multi-kills
     local kill_count = 0
     function self.GetKillCount() return kill_count end
     function self.SetKillCount(int) kill_count = int end
     function self.AddToKillCount() kill_count = kill_count + 1 end
 
+    -- Calls on spawn
+    -- Resets a players kill count and flag touched status
+    -- Updates HUD elements
     function self.UpdateSpawn()
         self.SetKillCount(0)
         self.SetFlagTouched(false)
