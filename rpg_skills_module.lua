@@ -21,11 +21,11 @@ end
 function skills_module.Speed(player)
     local SPEED_INCREASE_PERCENT = 0.05
     local lvl = player.GetSpeedLevel()
-	if lvl >= 1 then
+    if lvl >= 1 then
         local playerID = player.GetPlayer()
-		playerID:RemoveEffect( EF.kSpeedlua1 )
-		playerID:AddEffect( EF.kSpeedlua1, -1, 0, SPEED_INCREASE_PERCENT * lvl + 1  )
-	end
+        playerID:RemoveEffect( EF.kSpeedlua1 )
+        playerID:AddEffect( EF.kSpeedlua1, -1, 0, SPEED_INCREASE_PERCENT * lvl + 1  )
+    end
 end
 
 --Reduces damage taken from all sources by a percentage
@@ -87,8 +87,8 @@ function skills_module.Scout()
         local REFLECT_AMOUNT = 0.10
         if player.GetClassID() == 1 and player.GetUlt(3) then
             if damageinfo:GetDamageType() == 268435456 then
-				return false -- Ignore fall damage?
-			else
+                return false -- Ignore fall damage?
+            else
                 local playerID = attacker.GetPlayer()
                 playerID:AddHealth(-damageinfo:GetDamage() * REFLECT_AMOUNT)
             end
@@ -208,8 +208,8 @@ end
 
 function skills_module.Medic()
     local HEALER_MULTIPLIER = 0.40
-	local ARMORER_MULTIPLIER = 0.40
-	local CONC_HEAL = 50
+    local ARMORER_MULTIPLIER = 0.40
+    local CONC_HEAL = 50
 
     local MOMENTUM_MULTIPLIER = 0.32
     local self = {}
@@ -320,13 +320,13 @@ function skills_module.Pyro()
             local playerID = player.GetPlayer()
                 --Gets all grenades in a 64 unit radius of the player and changes the model
             gren_col:GetInSphere(playerID, 64, {  CF.kGrenades, CF.kTraceBlockWalls } )
-        	for temp in gren_col.items do
+            for temp in gren_col.items do
                 --if the model is a head make it scream
                 if model:find("head") ~= nil then
                     temp:EmitSound("Player.Scream")
                 end
-        		temp:SetModel(model)
-        	end
+                temp:SetModel(model)
+            end
         end
     end
 
@@ -373,12 +373,12 @@ function skills_module.Spy()
             local weapon = damageinfo:GetDamageType()
             if weapon == 268435456 then
                 local playerID  = player.GetPlayer()
-    			playerID:AddHealth(50)
-    			playerID:AddArmor(50)
+                playerID:AddHealth(50)
+                playerID:AddArmor(50)
                 -- 5 second boost at 1.5x speed
-    			playerID:AddEffect(EF.kSpeedlua2, 5, 5, 1.5)
-    		end
-    	end
+                playerID:AddEffect(EF.kSpeedlua2, 5, 5, 1.5)
+            end
+        end
     end
 
     function self.WeaponThief(player, attacker, damageinfo)

@@ -98,7 +98,7 @@ function xp_module.NewExperienceLine(playerID)
 
     function self.LevelUlt(int)
         ult[int] = true
-		playerID.SetAllowUlt(false)
+        playerID.SetAllowUlt(false)
     end
 
     function self.ResetSkills()
@@ -126,82 +126,82 @@ function xp_module.LevelUp(playerID)
     --Because everyone loves points, right?
     player:AddFortPoints(100 * level, "Leveling up!")
 
-	ObjectiveNotice(player, "Level "..level.."!" )
-	BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
-	ChatToPlayer(player,"^5You are now level ^4"..level)
+    ObjectiveNotice(player, "Level "..level.."!" )
+    BroadCastMessageToPlayer(player, "LEVEL "..level.."!", 6, Color.kWhite)
+    ChatToPlayer(player,"^5You are now level ^4"..level)
 
-	AddSchedule("level_up"..steam_id, 2, LevelUpDelay, playerID)
+    AddSchedule("level_up"..steam_id, 2, LevelUpDelay, playerID)
 end
 
 function LevelUpDelay(playerID)
     local player = playerID.GetPlayer()
     local level = playerID.GetLevel()
 
-	DestroyMenu( "LEVEL_UP" )
+    DestroyMenu( "LEVEL_UP" )
     DestroyMenu( "LEVEL_UP_ULT" )
 
-	if playerID.IsAllowUlt() then --Get ult at 6, 11, 18
-		CreateMenu( "LEVEL_UP_ULT", "Select an Ultimate", -1 )
+    if playerID.IsAllowUlt() then --Get ult at 6, 11, 18
+        CreateMenu( "LEVEL_UP_ULT", "Select an Ultimate", -1 )
 
         local ult_name = playerID.GetUltName(1)
         local ult_desc = playerID.GetUltDesc(1)
         -- Show players ults they dont already have
-		if not playerID.GetUlt(1) then
-			AddMenuOption( "LEVEL_UP_ULT", 6 , ult_name .." (".. ult_desc ..")")
-		end
-		if not playerID.GetUlt(2) then
+        if not playerID.GetUlt(1) then
+            AddMenuOption( "LEVEL_UP_ULT", 6 , ult_name .." (".. ult_desc ..")")
+        end
+        if not playerID.GetUlt(2) then
             ult_name = playerID.GetUltName(2)
             ult_desc = playerID.GetUltDesc(2)
-			AddMenuOption( "LEVEL_UP_ULT", 7 , ult_name .." (".. ult_desc ..")")
-		end
-		if not playerID.GetUlt(3) then
+            AddMenuOption( "LEVEL_UP_ULT", 7 , ult_name .." (".. ult_desc ..")")
+        end
+        if not playerID.GetUlt(3) then
             ult_name = playerID.GetUltName(3)
             ult_desc = playerID.GetUltDesc(3)
-			AddMenuOption( "LEVEL_UP_ULT", 8 , ult_name .." (".. ult_desc ..")")
-		end
-		if not playerID.GetUlt(4) then
+            AddMenuOption( "LEVEL_UP_ULT", 8 , ult_name .." (".. ult_desc ..")")
+        end
+        if not playerID.GetUlt(4) then
             ult_name = playerID.GetUltName(4)
             ult_desc = playerID.GetUltDesc(4)
-			AddMenuOption( "LEVEL_UP_ULT", 9 , ult_name .." (".. ult_desc ..")")
-		end
+            AddMenuOption( "LEVEL_UP_ULT", 9 , ult_name .." (".. ult_desc ..")")
+        end
 
-		ShowMenuToPlayer(player, "LEVEL_UP_ULT")
-	else
-		-- Check to see if player selected auto leveling
-		if not playerID.GetAutoLevel() then
+        ShowMenuToPlayer(player, "LEVEL_UP_ULT")
+    else
+        -- Check to see if player selected auto leveling
+        if not playerID.GetAutoLevel() then
             local class_id = playerID.GetClassID()
-			--Create a menu with some level up choices and label them!
-			CreateMenu( "LEVEL_UP", "Choose a skill", -1 )
-			AddMenuOption( "LEVEL_UP", 6 , "5% Increased Resistance")
-			AddMenuOption( "LEVEL_UP", 7 , "5% Increased Speed")
-			AddMenuOption( "LEVEL_UP", 8 , "5% Health and Armor Regeneration")
+            --Create a menu with some level up choices and label them!
+            CreateMenu( "LEVEL_UP", "Choose a skill", -1 )
+            AddMenuOption( "LEVEL_UP", 6 , "5% Increased Resistance")
+            AddMenuOption( "LEVEL_UP", 7 , "5% Increased Speed")
+            AddMenuOption( "LEVEL_UP", 8 , "5% Health and Armor Regeneration")
 
-			-- Add Offensive skills to Offensive classes
-			if class_id == 1 or class_id == 5 or class_id == 8 then
-				AddMenuOption( "LEVEL_UP", 9 , "15% Increased Flag Throwing")
-			else
-				AddMenuOption( "LEVEL_UP", 9 , "5% Increased Damage")
-			end
+            -- Add Offensive skills to Offensive classes
+            if class_id == 1 or class_id == 5 or class_id == 8 then
+                AddMenuOption( "LEVEL_UP", 9 , "15% Increased Flag Throwing")
+            else
+                AddMenuOption( "LEVEL_UP", 9 , "5% Increased Damage")
+            end
 
-			ShowMenuToPlayer(player, "LEVEL_UP")
-		else
-			local auto_choice = RandomInt(1, 4)
+            ShowMenuToPlayer(player, "LEVEL_UP")
+        else
+            local auto_choice = RandomInt(1, 4)
 
-			if auto_choice == 1 then
-				playerID.LevelUpResist()
-			elseif auto_choice == 2 then
-				playerID.LevelUpSpeed()
-			elseif auto_choice == 3 then
-				playerID.LevelUpRegen()
-			elseif auto_choice == 4 then
-				if class_id == 1 or class_id == 5 or class_id == 8 then
-					playerID.LevelUpFlagThrow()
-				else
-					playerID.LevelUpDamage()
-				end
-			end -- auto choice
-		end -- auto level
-	end
+            if auto_choice == 1 then
+                playerID.LevelUpResist()
+            elseif auto_choice == 2 then
+                playerID.LevelUpSpeed()
+            elseif auto_choice == 3 then
+                playerID.LevelUpRegen()
+            elseif auto_choice == 4 then
+                if class_id == 1 or class_id == 5 or class_id == 8 then
+                    playerID.LevelUpFlagThrow()
+                else
+                    playerID.LevelUpDamage()
+                end
+            end -- auto choice
+        end -- auto level
+    end
     BroadCastSoundToPlayer(player, "Misc.Unagi")
 end
 
